@@ -197,35 +197,48 @@
   <!-- ===================================================================== -->
   <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-5">
 
-    <!-- SUB-HEADER (PERSIS SEPERTI GAMBAR: BANNER GELAP + KOTAK BULAN PUTIH) -->
+    <!-- SUB-HEADER (PERSIS SEPERTI GAMBAR: BANNER GELAP + KOTAK BULAN PUTIH + KONTROL DINAMIS) -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
       
       <!-- Banner Judul Kiri (Dark Banner persis gambar) -->
-      <div class="lg:col-span-3 bg-brand-banner text-white p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <div class="lg:col-span-3 bg-brand-banner text-white p-4 sm:p-5 rounded-2xl flex flex-col justify-between gap-3 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                Dashboard Analisis Data Keuangan
+              </h2>
+              <p class="text-xs text-slate-300">Arus kas pemasukan, pengeluaran, saldo & mutasi rekening</p>
+            </div>
           </div>
-          <div>
-            <h2 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              Dashboard Analisis Data Keuangan
-            </h2>
-            <p class="text-xs text-slate-300">Arus kas pemasukan, pengeluaran, saldo & mutasi rekening</p>
+
+          <!-- Filter Tab Periode (Pink pill style) -->
+          <div class="flex flex-wrap items-center gap-1 self-start sm:self-center bg-black/30 p-1 rounded-xl">
+            <button onclick="setFilterPeriod('harian')" id="btnPeriodHarian" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Harian</button>
+            <button onclick="setFilterPeriod('mingguan')" id="btnPeriodMingguan" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Mingguan</button>
+            <button onclick="setFilterPeriod('bulanan')" id="btnPeriodBulanan" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-brand-pink text-white shadow transition">Bulanan</button>
+            <button onclick="setFilterPeriod('tahunan')" id="btnPeriodTahunan" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Tahunan</button>
+            <button onclick="setFilterPeriod('kustom')" id="btnPeriodKustom" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Rentang</button>
           </div>
         </div>
 
-        <!-- Filter Tab Periode (Pink pill style) -->
-        <div class="flex items-center gap-1.5 self-start sm:self-center bg-black/30 p-1 rounded-xl">
-          <button onclick="setFilterPeriod('harian')" id="btnPeriodHarian" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Harian</button>
-          <button onclick="setFilterPeriod('mingguan')" id="btnPeriodMingguan" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Mingguan</button>
-          <button onclick="setFilterPeriod('bulanan')" id="btnPeriodBulanan" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-brand-pink text-white shadow transition">Bulanan</button>
-          <button onclick="setFilterPeriod('tahunan')" id="btnPeriodTahunan" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Tahunan</button>
+        <!-- Dynamic Control Bar Sesuai Pilihan Filter -->
+        <div id="dynamicFilterControls" class="pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <!-- Populated by JS -->
         </div>
       </div>
 
       <!-- Kotak Filter Bulan di Kanan (Putih dengan tombol pink, persis gambar) -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-center">
-        <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 text-center mb-1.5">BULAN</div>
+      <div id="boxMonthSelector" class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-center">
+        <div class="flex items-center justify-between mb-1.5 px-1">
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">BULAN</span>
+          <select id="selectFilterYear" onchange="onYearChange(this.value)" class="bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 rounded-lg px-2 py-0.5 focus:outline-none focus:border-brand-pink">
+            <!-- Populated by JS: 2024, 2025, 2026, 2027 -->
+          </select>
+        </div>
         <div id="monthSelectorContainer" class="grid grid-cols-3 gap-1">
           <!-- Populated by JS: Jan, Feb, Mar ... Des -->
         </div>
@@ -307,9 +320,9 @@
           <div>
             <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
               <svg class="w-4 h-4 text-brand-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              Arus Kas Bulanan (Masuk vs Keluar)
+              <span id="chartArusKasTitleText">Arus Kas Masuk vs Keluar</span>
             </h3>
-            <p class="text-xs text-slate-400">Grafik perbandingan pengeluaran (Pink) dan pemasukan (Teal)</p>
+            <p id="chartArusKasSubtitle" class="text-xs text-slate-400">Grafik perbandingan pengeluaran (Pink) dan pemasukan (Teal)</p>
           </div>
           <div class="flex items-center gap-3 text-xs font-semibold">
             <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-md bg-brand-teal"></span> <span class="text-slate-600">Masuk</span></div>
@@ -552,14 +565,18 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal</label>
-            <input type="date" id="inputTanggal" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
+            <input type="date" id="inputTanggal" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Waktu / Jam</label>
+            <input type="time" id="inputWaktu" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">Kategori</label>
-            <select id="inputKategori" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
+            <select id="inputKategori" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
               <!-- Populated by JS -->
             </select>
           </div>
@@ -889,9 +906,12 @@
       wallets: [],
       categories: [],
       recurring: [],
-      filterPeriod: 'bulanan',
+      filterPeriod: 'bulanan', // 'harian', 'mingguan', 'bulanan', 'tahunan', 'kustom'
+      selectedDate: new Date().toISOString().split('T')[0],
       selectedMonth: new Date().getMonth(),
       selectedYear: new Date().getFullYear(),
+      customStartDate: '',
+      customEndDate: '',
       pin: localStorage.getItem('FINTRACK_PIN') || '1234',
       gasUrl: activeGasUrl,
       isAuthenticated: false
@@ -915,7 +935,9 @@
       const searchInput = document.getElementById('searchInput');
       if (searchInput) searchInput.value = '';
 
+      initYearSelector();
       initMonthSelector();
+      renderDynamicFilterControls();
       loadInitialData();
 
       // Check PIN session
@@ -999,9 +1021,134 @@
       alert('PIN berhasil diperbarui menjadi: ' + newPin);
     }
 
-    // --- MONTH & PERIOD SELECTOR (PERSIS SEPERTI GAMBAR) ---
+    // --- MONTH, YEAR & PERIOD SELECTOR ---
+    function initYearSelector() {
+      const yearSelect = document.getElementById('selectFilterYear');
+      if (!yearSelect) return;
+      yearSelect.innerHTML = '';
+      const currentYear = new Date().getFullYear();
+      for (let y = currentYear - 3; y <= currentYear + 2; y++) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        if (y === appState.selectedYear) opt.selected = true;
+        yearSelect.appendChild(opt);
+      }
+    }
+
+    function onYearChange(val) {
+      appState.selectedYear = parseInt(val, 10);
+      const sel = document.getElementById('selectFilterYear');
+      if (sel && sel.value !== String(val)) sel.value = String(val);
+      renderDynamicFilterControls();
+      renderAll();
+    }
+
+    function onDateChange(val) {
+      if (!val) return;
+      appState.selectedDate = val;
+      renderDynamicFilterControls();
+      renderAll();
+    }
+
+    function onCustomDateChange() {
+      const s = document.getElementById('customDateStart');
+      const e = document.getElementById('customDateEnd');
+      if (s) appState.customStartDate = s.value;
+      if (e) appState.customEndDate = e.value;
+      renderAll();
+    }
+
+    function clearCustomRange() {
+      appState.customStartDate = '';
+      appState.customEndDate = '';
+      const s = document.getElementById('customDateStart');
+      const e = document.getElementById('customDateEnd');
+      if (s) s.value = '';
+      if (e) e.value = '';
+      renderDynamicFilterControls();
+      renderAll();
+    }
+
+    function getWeekRangeString() {
+      const now = new Date();
+      const dayOfWeek = (now.getDay() + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - dayOfWeek);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      const mStart = MONTH_NAMES[monday.getMonth()];
+      const mEnd = MONTH_NAMES[sunday.getMonth()];
+      if (mStart === mEnd) {
+        return `${monday.getDate()} - ${sunday.getDate()} ${mStart} ${monday.getFullYear()}`;
+      } else {
+        return `${monday.getDate()} ${mStart} - ${sunday.getDate()} ${mEnd} ${sunday.getFullYear()}`;
+      }
+    }
+
+    function renderDynamicFilterControls() {
+      const container = document.getElementById('dynamicFilterControls');
+      if (!container) return;
+
+      if (appState.filterPeriod === 'harian') {
+        container.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-slate-300 font-semibold">Pilih Tanggal:</span>
+            <input type="date" value="${appState.selectedDate}" onchange="onDateChange(this.value)" class="bg-black/40 border border-white/20 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand-pink transition cursor-pointer">
+            <button onclick="onDateChange('${new Date().toISOString().split('T')[0]}')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 font-semibold transition active:scale-95">Hari Ini</button>
+          </div>
+          <span class="text-slate-300 font-medium">Bagan di bawah menampilkan arus kas <b>per jam (00:00 - 23:00)</b></span>
+        `;
+      } else if (appState.filterPeriod === 'mingguan') {
+        const rangeText = getWeekRangeString();
+        container.innerHTML = `
+          <div class="flex items-center gap-2 text-slate-200">
+            <span class="text-slate-300">📅 Periode Minggu Ini:</span>
+            <b class="text-white">${rangeText}</b>
+          </div>
+          <span class="text-slate-300 font-medium">Bagan di bawah menampilkan arus kas <b>per hari (Senin s/d Minggu)</b></span>
+        `;
+      } else if (appState.filterPeriod === 'bulanan') {
+        container.innerHTML = `
+          <div class="flex items-center gap-2 text-slate-200">
+            <span class="text-slate-300">📆 Periode Aktif:</span>
+            <b class="text-white">${MONTH_NAMES[appState.selectedMonth]} ${appState.selectedYear}</b>
+          </div>
+          <span class="text-slate-300 font-medium">Bagan di bawah menampilkan arus kas <b>per tanggal (Tgl 1 s/d akhir bulan)</b></span>
+        `;
+      } else if (appState.filterPeriod === 'tahunan') {
+        const currentYear = new Date().getFullYear();
+        let yearOpts = '';
+        for (let y = currentYear - 3; y <= currentYear + 2; y++) {
+          yearOpts += `<option value="${y}" ${y === appState.selectedYear ? 'selected' : ''}>${y}</option>`;
+        }
+        container.innerHTML = `
+          <div class="flex items-center gap-2 text-slate-200">
+            <span class="text-slate-300">🗓️ Pilih Tahun:</span>
+            <select onchange="onYearChange(this.value)" class="bg-black/40 border border-white/20 text-xs font-bold text-white rounded-lg px-2.5 py-1 focus:outline-none focus:border-brand-pink cursor-pointer">
+              ${yearOpts}
+            </select>
+          </div>
+          <span class="text-slate-300 font-medium">Bagan di bawah menampilkan arus kas <b>per bulan (Januari s/d Desember ${appState.selectedYear})</b></span>
+        `;
+      } else if (appState.filterPeriod === 'kustom') {
+        container.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-slate-300 font-semibold">Dari:</span>
+            <input type="date" id="customDateStart" value="${appState.customStartDate}" onchange="onCustomDateChange()" class="bg-black/40 border border-white/20 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-pink transition cursor-pointer">
+            <span class="text-slate-300 font-semibold">Sampai:</span>
+            <input type="date" id="customDateEnd" value="${appState.customEndDate}" onchange="onCustomDateChange()" class="bg-black/40 border border-white/20 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-pink transition cursor-pointer">
+            <button onclick="clearCustomRange()" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 font-semibold transition active:scale-95">Reset</button>
+          </div>
+          <span class="text-slate-300 font-medium">Bagan & tabel menampilkan transaksi sesuai <b>rentang tanggal kustom</b></span>
+        `;
+      }
+    }
+
     function initMonthSelector() {
       const container = document.getElementById('monthSelectorContainer');
+      if (!container) return;
       container.innerHTML = '';
 
       MONTH_NAMES.forEach((m, idx) => {
@@ -1021,19 +1168,23 @@
     function selectMonth(idx) {
       appState.selectedMonth = idx;
       initMonthSelector();
+      renderDynamicFilterControls();
       renderAll();
     }
 
     function setFilterPeriod(period) {
       appState.filterPeriod = period;
-      ['harian', 'mingguan', 'bulanan', 'tahunan'].forEach(p => {
+      ['harian', 'mingguan', 'bulanan', 'tahunan', 'kustom'].forEach(p => {
         const btn = document.getElementById('btnPeriod' + capitalize(p));
-        if (p === period) {
-          btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-brand-pink text-white shadow transition';
-        } else {
-          btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition';
+        if (btn) {
+          if (p === period) {
+            btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-brand-pink text-white shadow transition';
+          } else {
+            btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition';
+          }
         }
       });
+      renderDynamicFilterControls();
       renderAll();
     }
 
@@ -1083,6 +1234,14 @@
       const dd = String(now.getDate()).padStart(2, '0');
       const todayStr = `${yyyy}-${mm}-${dd}`;
 
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      const yDateStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+
+      const twoDaysAgo = new Date(now);
+      twoDaysAgo.setDate(now.getDate() - 2);
+      const twoDateStr = `${twoDaysAgo.getFullYear()}-${String(twoDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(twoDaysAgo.getDate()).padStart(2, '0')}`;
+
       initDefaultWallets();
 
       appState.categories = [
@@ -1102,10 +1261,12 @@
       ];
 
       appState.transactions = [
-        { id: `TRX-${yyyy}${mm}-001`, tanggal: todayStr, jenis: 'Pemasukan', kategori: 'Gaji Pokok', dompetAsal: 'BRI', dompetTujuan: '-', nominal: 10000000, catatan: 'Gaji Bulan Berjalan', linkStruk: '' },
-        { id: `TRX-${yyyy}${mm}-002`, tanggal: todayStr, jenis: 'Pengeluaran', kategori: 'Tagihan & Utilitas', dompetAsal: 'BJB 1', dompetTujuan: '-', nominal: 1500000, catatan: 'Bayar sewa bulanan', linkStruk: '' },
-        { id: `TRX-${yyyy}${mm}-003`, tanggal: todayStr, jenis: 'Pengeluaran', kategori: 'Makanan & Minuman', dompetAsal: 'Cash', dompetTujuan: '-', nominal: 45000, catatan: 'Makan siang ayam geprek', linkStruk: '' },
-        { id: `TRX-${yyyy}${mm}-004`, tanggal: todayStr, jenis: 'Pengeluaran', kategori: 'Belanja Kebutuhan', dompetAsal: 'BJB 2', dompetTujuan: '-', nominal: 120000, catatan: 'Belanja sabun & cemilan', linkStruk: '' }
+        { id: `TRX-${yyyy}${mm}-001`, tanggal: todayStr, waktu: '08:30', createdAt: `${todayStr}T08:30:00`, jenis: 'Pemasukan', kategori: 'Gaji Pokok', dompetAsal: 'BRI', dompetTujuan: '-', nominal: 10000000, catatan: 'Gaji Bulan Berjalan', linkStruk: '' },
+        { id: `TRX-${yyyy}${mm}-002`, tanggal: todayStr, waktu: '10:15', createdAt: `${todayStr}T10:15:00`, jenis: 'Pengeluaran', kategori: 'Tagihan & Utilitas', dompetAsal: 'BJB 1', dompetTujuan: '-', nominal: 1500000, catatan: 'Bayar sewa bulanan', linkStruk: '' },
+        { id: `TRX-${yyyy}${mm}-003`, tanggal: todayStr, waktu: '13:00', createdAt: `${todayStr}T13:00:00`, jenis: 'Pengeluaran', kategori: 'Makanan & Minuman', dompetAsal: 'Cash', dompetTujuan: '-', nominal: 45000, catatan: 'Makan siang ayam geprek', linkStruk: '' },
+        { id: `TRX-${yyyy}${mm}-004`, tanggal: todayStr, waktu: '18:45', createdAt: `${todayStr}T18:45:00`, jenis: 'Pengeluaran', kategori: 'Belanja Kebutuhan', dompetAsal: 'BJB 2', dompetTujuan: '-', nominal: 120000, catatan: 'Belanja sabun & cemilan', linkStruk: '' },
+        { id: `TRX-${yyyy}${mm}-005`, tanggal: yDateStr, waktu: '14:20', createdAt: `${yDateStr}T14:20:00`, jenis: 'Pengeluaran', kategori: 'Transportasi & Bensin', dompetAsal: 'Cash', dompetTujuan: '-', nominal: 50000, catatan: 'Isi bensin motor', linkStruk: '' },
+        { id: `TRX-${yyyy}${mm}-006`, tanggal: twoDateStr, waktu: '11:10', createdAt: `${twoDateStr}T11:10:00`, jenis: 'Pengeluaran', kategori: 'Makanan & Minuman', dompetAsal: 'Cash', dompetTujuan: '-', nominal: 35000, catatan: 'Kopi & sarapan pagi', linkStruk: '' }
       ];
 
       saveToLocalStorage();
@@ -1190,22 +1351,58 @@
       });
     }
 
+    function parseLocalDate(dateStr) {
+      if (!dateStr) return new Date();
+      if (dateStr instanceof Date) return dateStr;
+      const str = String(dateStr).trim();
+      const parts = str.split('T')[0].split('-');
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+          return new Date(y, m, d, 0, 0, 0, 0);
+        }
+      }
+      return new Date(dateStr);
+    }
+
     function getFilteredTransactions() {
       return appState.transactions.filter(t => {
-        const d = new Date(t.tanggal);
-        if (isNaN(d)) return true;
+        const d = parseLocalDate(t.tanggal);
+        if (isNaN(d.getTime())) return true;
 
-        if (appState.filterPeriod === 'bulanan') {
+        if (appState.filterPeriod === 'harian') {
+          const target = parseLocalDate(appState.selectedDate);
+          return d.getFullYear() === target.getFullYear() &&
+                 d.getMonth() === target.getMonth() &&
+                 d.getDate() === target.getDate();
+        } else if (appState.filterPeriod === 'mingguan') {
+          const now = new Date();
+          const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0, Sunday = 6
+          const monday = new Date(now);
+          monday.setDate(now.getDate() - dayOfWeek);
+          monday.setHours(0, 0, 0, 0);
+
+          const sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 6);
+          sunday.setHours(23, 59, 59, 999);
+
+          return d >= monday && d <= sunday;
+        } else if (appState.filterPeriod === 'bulanan') {
           return d.getMonth() === appState.selectedMonth && d.getFullYear() === appState.selectedYear;
         } else if (appState.filterPeriod === 'tahunan') {
           return d.getFullYear() === appState.selectedYear;
-        } else if (appState.filterPeriod === 'harian') {
-          const today = new Date();
-          return d.toDateString() === today.toDateString();
-        } else if (appState.filterPeriod === 'mingguan') {
-          const now = new Date();
-          const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          return d >= oneWeekAgo && d <= now;
+        } else if (appState.filterPeriod === 'kustom') {
+          const start = appState.customStartDate ? parseLocalDate(appState.customStartDate) : null;
+          const end = appState.customEndDate ? parseLocalDate(appState.customEndDate) : null;
+          if (start) start.setHours(0, 0, 0, 0);
+          if (end) end.setHours(23, 59, 59, 999);
+
+          if (start && end) return d >= start && d <= end;
+          if (start) return d >= start;
+          if (end) return d <= end;
+          return true;
         }
         return true;
       });
@@ -1238,27 +1435,33 @@
 
       // 1. Chart Arus Kas Masuk vs Keluar
       const ctxArusKas = document.getElementById('chartArusKas').getContext('2d');
-      const monthlyData = calculateMonthlyCashFlow();
+      const flowData = calculateCashFlowData();
+
+      // Sinkronisasi teks judul & subjudul grafik arus kas
+      const titleEl = document.getElementById('chartArusKasTitleText');
+      const subtitleEl = document.getElementById('chartArusKasSubtitle');
+      if (titleEl && flowData.title) titleEl.textContent = flowData.title;
+      if (subtitleEl && flowData.subtitle) subtitleEl.textContent = flowData.subtitle;
 
       if (chartArusKasInstance) chartArusKasInstance.destroy();
       chartArusKasInstance = new Chart(ctxArusKas, {
         type: 'bar',
         data: {
-          labels: MONTH_NAMES,
+          labels: flowData.labels,
           datasets: [
             {
               label: 'Pemasukan',
-              data: monthlyData.income,
+              data: flowData.income,
               backgroundColor: '#00b4d8',
               borderRadius: 6,
-              barThickness: 10
+              barThickness: flowData.barThickness || 10
             },
             {
               label: 'Pengeluaran',
-              data: monthlyData.expense,
+              data: flowData.expense,
               backgroundColor: '#ff3b69',
               borderRadius: 6,
-              barThickness: 10
+              barThickness: flowData.barThickness || 10
             }
           ]
         },
@@ -1276,7 +1479,13 @@
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }
+              ticks: {
+                color: '#64748b',
+                font: { size: 10, weight: 'bold' },
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 14
+              }
             },
             y: {
               grid: { color: '#e2e8f0' },
@@ -1425,21 +1634,235 @@
       });
     }
 
-    function calculateMonthlyCashFlow() {
-      const income = new Array(12).fill(0);
-      const expense = new Array(12).fill(0);
+    function calculateCashFlowData() {
+      const period = appState.filterPeriod;
+      let labels = [];
+      let income = [];
+      let expense = [];
+      let barThickness = 12;
+      let title = 'Arus Kas Masuk vs Keluar';
+      let subtitle = 'Grafik perbandingan pengeluaran (Pink) dan pemasukan (Teal)';
 
-      appState.transactions.forEach(t => {
-        const d = new Date(t.tanggal);
-        if (!isNaN(d) && d.getFullYear() === appState.selectedYear) {
-          const m = d.getMonth();
-          const nom = Number(t.nominal) || 0;
-          if (t.jenis === 'Pemasukan') income[m] += nom;
-          else if (t.jenis === 'Pengeluaran') expense[m] += nom;
+      function getHourFromTrx(t) {
+        if (t.waktu && t.waktu.includes(':')) {
+          const h = parseInt(t.waktu.split(':')[0], 10);
+          if (!isNaN(h) && h >= 0 && h <= 23) return h;
         }
-      });
+        if (t.createdAt) {
+          const cd = new Date(t.createdAt);
+          if (!isNaN(cd.getTime())) return cd.getHours();
+        }
+        return 12;
+      }
 
-      return { income, expense };
+      if (period === 'harian') {
+        // PER JAM (00:00 - 23:00)
+        labels = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+        income = new Array(24).fill(0);
+        expense = new Array(24).fill(0);
+        barThickness = 5;
+
+        const targetDate = parseLocalDate(appState.selectedDate);
+        const targetYear = targetDate.getFullYear();
+        const targetMonth = targetDate.getMonth();
+        const targetDay = targetDate.getDate();
+
+        appState.transactions.forEach(t => {
+          const td = parseLocalDate(t.tanggal);
+          if (td.getFullYear() === targetYear && td.getMonth() === targetMonth && td.getDate() === targetDay) {
+            const h = getHourFromTrx(t);
+            const nom = Number(t.nominal) || 0;
+            if (t.jenis === 'Pemasukan') income[h] += nom;
+            else if (t.jenis === 'Pengeluaran') expense[h] += nom;
+          }
+        });
+
+        title = `Arus Kas Per Jam (${targetDay} ${MONTH_NAMES[targetMonth]} ${targetYear})`;
+        subtitle = `Rincian per jam (00:00 s/d 23:00) pada hari terpilih`;
+
+      } else if (period === 'mingguan') {
+        // PER HARI (Senin s/d Minggu)
+        const now = new Date();
+        const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0, Sunday = 6
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - dayOfWeek);
+        monday.setHours(0, 0, 0, 0);
+
+        const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+        labels = [];
+        income = new Array(7).fill(0);
+        expense = new Array(7).fill(0);
+        barThickness = 14;
+
+        for (let i = 0; i < 7; i++) {
+          const targetDay = new Date(monday);
+          targetDay.setDate(monday.getDate() + i);
+          labels.push(`${dayNames[i]} (${targetDay.getDate()}/${targetDay.getMonth() + 1})`);
+
+          appState.transactions.forEach(t => {
+            const td = parseLocalDate(t.tanggal);
+            if (td.getFullYear() === targetDay.getFullYear() &&
+                td.getMonth() === targetDay.getMonth() &&
+                td.getDate() === targetDay.getDate()) {
+              const nom = Number(t.nominal) || 0;
+              if (t.jenis === 'Pemasukan') income[i] += nom;
+              else if (t.jenis === 'Pengeluaran') expense[i] += nom;
+            }
+          });
+        }
+
+        title = `Arus Kas Mingguan (Senin - Minggu)`;
+        subtitle = `Rincian per hari periode ${getWeekRangeString()}`;
+
+      } else if (period === 'bulanan') {
+        // PER TANGGAL (Tgl 1 s/d Akhir Bulan)
+        const daysInMonth = new Date(appState.selectedYear, appState.selectedMonth + 1, 0).getDate();
+        labels = Array.from({ length: daysInMonth }, (_, i) => `Tgl ${i + 1}`);
+        income = new Array(daysInMonth).fill(0);
+        expense = new Array(daysInMonth).fill(0);
+        barThickness = daysInMonth > 28 ? 6 : 8;
+
+        appState.transactions.forEach(t => {
+          const td = parseLocalDate(t.tanggal);
+          if (!isNaN(td.getTime()) &&
+              td.getFullYear() === appState.selectedYear &&
+              td.getMonth() === appState.selectedMonth) {
+            const dayIdx = td.getDate() - 1;
+            if (dayIdx >= 0 && dayIdx < daysInMonth) {
+              const nom = Number(t.nominal) || 0;
+              if (t.jenis === 'Pemasukan') income[dayIdx] += nom;
+              else if (t.jenis === 'Pengeluaran') expense[dayIdx] += nom;
+            }
+          }
+        });
+
+        title = `Arus Kas Harian (${MONTH_NAMES[appState.selectedMonth]} ${appState.selectedYear})`;
+        subtitle = `Rincian transaksi per tanggal (1 s/d ${daysInMonth} ${MONTH_NAMES[appState.selectedMonth]})`;
+
+      } else if (period === 'tahunan') {
+        // PER BULAN (Januari s/d Desember)
+        labels = [...MONTH_NAMES];
+        income = new Array(12).fill(0);
+        expense = new Array(12).fill(0);
+        barThickness = 14;
+
+        appState.transactions.forEach(t => {
+          const td = parseLocalDate(t.tanggal);
+          if (!isNaN(td.getTime()) && td.getFullYear() === appState.selectedYear) {
+            const m = td.getMonth();
+            const nom = Number(t.nominal) || 0;
+            if (t.jenis === 'Pemasukan') income[m] += nom;
+            else if (t.jenis === 'Pengeluaran') expense[m] += nom;
+          }
+        });
+
+        title = `Arus Kas Bulanan (Tahun ${appState.selectedYear})`;
+        subtitle = `Rincian transaksi per bulan (Januari s/d Desember ${appState.selectedYear})`;
+
+      } else if (period === 'kustom') {
+        // RENTANG TANGGAL KUSTOM
+        const start = appState.customStartDate ? parseLocalDate(appState.customStartDate) : null;
+        const end = appState.customEndDate ? parseLocalDate(appState.customEndDate) : null;
+
+        if (start && end && start <= end) {
+          const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+          if (diffDays === 1) {
+            // Rentang 1 hari -> Per jam
+            labels = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+            income = new Array(24).fill(0);
+            expense = new Array(24).fill(0);
+            barThickness = 5;
+
+            appState.transactions.forEach(t => {
+              const td = parseLocalDate(t.tanggal);
+              if (td.getFullYear() === start.getFullYear() &&
+                  td.getMonth() === start.getMonth() &&
+                  td.getDate() === start.getDate()) {
+                const h = getHourFromTrx(t);
+                const nom = Number(t.nominal) || 0;
+                if (t.jenis === 'Pemasukan') income[h] += nom;
+                else if (t.jenis === 'Pengeluaran') expense[h] += nom;
+              }
+            });
+
+            title = `Arus Kas Per Jam (${start.getDate()} ${MONTH_NAMES[start.getMonth()]} ${start.getFullYear()})`;
+            subtitle = 'Rincian per jam pada tanggal terpilih';
+
+          } else if (diffDays <= 31) {
+            // 2 s/d 31 hari -> Per tanggal
+            labels = [];
+            income = [];
+            expense = [];
+            barThickness = diffDays > 15 ? 7 : 12;
+
+            for (let i = 0; i < diffDays; i++) {
+              const cur = new Date(start);
+              cur.setDate(start.getDate() + i);
+              labels.push(`${cur.getDate()}/${cur.getMonth() + 1}`);
+
+              let dIn = 0;
+              let dOut = 0;
+              appState.transactions.forEach(t => {
+                const td = parseLocalDate(t.tanggal);
+                if (td.getFullYear() === cur.getFullYear() &&
+                    td.getMonth() === cur.getMonth() &&
+                    td.getDate() === cur.getDate()) {
+                  const nom = Number(t.nominal) || 0;
+                  if (t.jenis === 'Pemasukan') dIn += nom;
+                  else if (t.jenis === 'Pengeluaran') dOut += nom;
+                }
+              });
+              income.push(dIn);
+              expense.push(dOut);
+            }
+
+            title = `Arus Kas Rentang Kustom (${diffDays} Hari)`;
+            subtitle = `Periode ${start.getDate()} ${MONTH_NAMES[start.getMonth()]} s/d ${end.getDate()} ${MONTH_NAMES[end.getMonth()]} ${end.getFullYear()}`;
+
+          } else {
+            // Lebih dari 31 hari -> Per bulan
+            labels = [];
+            income = [];
+            expense = [];
+            barThickness = 12;
+
+            const cur = new Date(start.getFullYear(), start.getMonth(), 1);
+            const endMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+
+            while (cur <= endMonth) {
+              const cYear = cur.getFullYear();
+              const cMonth = cur.getMonth();
+              labels.push(`${MONTH_NAMES[cMonth]} '${String(cYear).slice(-2)}`);
+
+              let mIn = 0;
+              let mOut = 0;
+              appState.transactions.forEach(t => {
+                const td = parseLocalDate(t.tanggal);
+                if (td.getFullYear() === cYear && td.getMonth() === cMonth && td >= start && td <= end) {
+                  const nom = Number(t.nominal) || 0;
+                  if (t.jenis === 'Pemasukan') mIn += nom;
+                  else if (t.jenis === 'Pengeluaran') mOut += nom;
+                }
+              });
+              income.push(mIn);
+              expense.push(mOut);
+              cur.setMonth(cur.getMonth() + 1);
+            }
+
+            title = `Arus Kas Rentang Kustom (Bulanan)`;
+            subtitle = `Periode ${appState.customStartDate} s/d ${appState.customEndDate}`;
+          }
+        } else {
+          labels = ['Silakan pilih rentang Dari & Sampai'];
+          income = [0];
+          expense = [0];
+          title = `Arus Kas Rentang Kustom`;
+          subtitle = 'Tentukan tanggal pada kolom filter di atas';
+        }
+      }
+
+      return { labels, income, expense, barThickness, title, subtitle };
     }
 
     // --- RENDER DOMPET (BRI, BJB 1, BJB 2, CASH) ---
@@ -1586,9 +2009,13 @@
 
       if (!confirm(`Eksekusi transaksi rutin: "${target.judul}" sebesar ${formatRupiah(target.nominal)} ke ${target.dompet}?`)) return;
 
+      const now = new Date();
+      const currentJam = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       const newTrx = {
         id: generateClientTrxId(),
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: now.toISOString().split('T')[0],
+        waktu: currentJam,
+        createdAt: now.toISOString(),
         jenis: target.jenis,
         kategori: target.kategori,
         dompetAsal: target.dompet,
@@ -1653,7 +2080,7 @@
         tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
         tr.innerHTML = `
           <td class="py-2.5 px-3">
-            <div class="font-bold text-slate-900 text-xs">${t.tanggal}</div>
+            <div class="font-bold text-slate-900 text-xs">${t.tanggal}${t.waktu ? ` <span class="text-slate-400 font-semibold font-mono text-[10px] ml-1">(${t.waktu})</span>` : ''}</div>
             <div class="text-[10px] text-slate-400 font-mono">${t.id}</div>
           </td>
           <td class="py-2.5 px-3">
@@ -1733,7 +2160,12 @@
     // --- FORM SUBMISSIONS & MODALS ---
     function openAddModal(type = 'Pengeluaran') {
       setAddType(type);
-      document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      document.getElementById('inputTanggal').value = now.toISOString().split('T')[0];
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const timeEl = document.getElementById('inputWaktu');
+      if (timeEl) timeEl.value = `${hh}:${mm}`;
       document.getElementById('addModal').classList.remove('hidden');
     }
 
@@ -1761,10 +2193,21 @@
       }
 
       const tanggal = document.getElementById('inputTanggal').value;
+      const waktuInput = document.getElementById('inputWaktu')?.value || '';
       const kategori = document.getElementById('inputKategori').value;
       const dompet = document.getElementById('inputDompet').value;
       const catatan = document.getElementById('inputCatatan').value.trim();
       const fotoInput = document.getElementById('inputFotoStruk');
+
+      const now = new Date();
+      const jam = waktuInput || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      let createdAtStr = now.toISOString();
+      if (tanggal && jam) {
+        const [h, m] = jam.split(':');
+        const dt = parseLocalDate(tanggal);
+        dt.setHours(parseInt(h, 10) || 12, parseInt(m, 10) || 0, 0);
+        createdAtStr = dt.toISOString();
+      }
 
       let imageBase64 = '';
       if (fotoInput.files && fotoInput.files[0]) {
@@ -1774,6 +2217,8 @@
       const newTrx = {
         id: generateClientTrxId(),
         tanggal: tanggal,
+        waktu: jam,
+        createdAt: createdAtStr,
         jenis: currentAddType,
         kategori: kategori,
         dompetAsal: dompet,
@@ -1913,9 +2358,20 @@
       const dompet = document.getElementById('scanDompet').value;
       const catatan = document.getElementById('scanCatatan').value.trim() || 'Struk Belanja';
 
+      const now = new Date();
+      const currentJam = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      let createdAtStr = now.toISOString();
+      if (tanggal) {
+        const dt = parseLocalDate(tanggal);
+        dt.setHours(now.getHours(), now.getMinutes(), 0);
+        createdAtStr = dt.toISOString();
+      }
+
       const newTrx = {
         id: generateClientTrxId(),
         tanggal: tanggal,
+        waktu: currentJam,
+        createdAt: createdAtStr,
         jenis: 'Pengeluaran',
         kategori: kategori,
         dompetAsal: dompet,
@@ -1972,9 +2428,14 @@
         return;
       }
 
+      const now = new Date();
+      const currentJam = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
       const newTrx = {
         id: generateClientTrxId(),
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: now.toISOString().split('T')[0],
+        waktu: currentJam,
+        createdAt: now.toISOString(),
         jenis: 'Transfer',
         kategori: 'Transfer Saldo',
         dompetAsal: from,
