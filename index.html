@@ -930,16 +930,39 @@
         <div>
           <label class="block font-bold text-slate-700 mb-1">URL Google Apps Script Web App (API Endpoint)</label>
           <input type="url" id="settingGasUrl" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-brand-teal focus:bg-white transition">
-          <p class="text-[11px] text-slate-500 mt-1">URL ini telah terhubung dengan Google Sheets dan Google Drive Anda.</p>
+          <p class="text-[11px] text-slate-500 mt-1">URL ini menghubungkan aplikasi dengan Google Sheets dan Google Drive Anda.</p>
         </div>
 
-        <div class="flex items-center gap-2">
-          <button onclick="testConnection()" class="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 text-sky-700 font-bold transition active:scale-95">
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="testConnection()" class="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 text-sky-700 font-bold transition active:scale-95">
             Uji Koneksi API
           </button>
-          <button onclick="backupToGoogleDrive()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold transition active:scale-95">
+          <button type="button" onclick="backupToGoogleDrive()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold transition active:scale-95">
             Backup ke Google Drive
           </button>
+          <button type="button" onclick="resetToDefaultGasUrl()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 text-[11px] font-semibold transition active:scale-95">
+            Reset URL Baku
+          </button>
+        </div>
+
+        <hr class="border-slate-200 my-2">
+
+        <!-- Google Gemini AI Vision Configuration -->
+        <div>
+          <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+            <span>Google Gemini AI API Key (Vision OCR)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Multimodal AI</span>
+          </label>
+          <div class="relative flex items-center">
+            <input type="password" id="settingGeminiApiKey" placeholder="AQ.Ab8... atau AIzaSy..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 pr-10 text-xs text-slate-800 font-mono focus:outline-none focus:border-brand-teal focus:bg-white transition">
+            <button type="button" onclick="togglePasswordVisibility('settingGeminiApiKey', this)" class="absolute right-2.5 p-1 text-slate-400 hover:text-slate-700 transition" title="Lihat/Sembunyikan API Key">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+          <div class="flex items-center justify-between mt-1">
+            <p class="text-[11px] text-slate-500">Tersinkronisasi otomatis dengan Tab "Pengaturan" di Google Sheets.</p>
+            <button type="button" onclick="testGeminiApiKey()" class="text-[11px] font-bold text-brand-teal hover:underline active:scale-95">Uji Kunci Gemini</button>
+          </div>
         </div>
 
         <hr class="border-slate-200 my-2">
@@ -973,13 +996,17 @@
   <!-- ===================================================================== -->
   <script>
     // --- DEFAULT & STATE MANAGEMENT ---
-    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyM8LZucxjFymD6wLGO6U82AbYHg0mFwTivPnmeF5U_1L2Js_vw_F4ElvR0Jg3hzuXs/exec';
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyAjiUUTIOgnj80JCL3wIpPWCf-NP23673OL9j1dROduwz77YMIKs48e78l1e9dSSeG/exec';
+    const DEFAULT_GEMINI_API_KEY = '';
     
     let activeGasUrl = localStorage.getItem('FINTRACK_GAS_URL');
-    if (!activeGasUrl || activeGasUrl.trim() === '') {
+    // Auto-migrasikan jika masih menggunakan URL lama yang defunk atau kosong
+    if (!activeGasUrl || activeGasUrl.trim() === '' || activeGasUrl.includes('AKfycbyM8LZucxjFymD6wLGO6U82AbYHg0mFwTivPnmeF5U_1L2Js_vw_F4ElvR0Jg3hzuXs')) {
       activeGasUrl = DEFAULT_GAS_URL;
       localStorage.setItem('FINTRACK_GAS_URL', DEFAULT_GAS_URL);
     }
+
+    let activeGeminiKey = localStorage.getItem('FINTRACK_GEMINI_API_KEY') || DEFAULT_GEMINI_API_KEY;
 
     let appState = {
       transactions: [],
@@ -1002,6 +1029,7 @@
       tableSortOrder: 'NEWEST', // 'NEWEST', 'OLDEST', 'HIGHEST', 'LOWEST'
       pin: localStorage.getItem('FINTRACK_PIN') || '1234',
       gasUrl: activeGasUrl,
+      geminiApiKey: activeGeminiKey,
       isAuthenticated: false
     };
 
@@ -1487,6 +1515,15 @@
           if (json.data.recurring && json.data.recurring.length > 0) {
             appState.recurring = json.data.recurring;
           }
+          // Ambil pengaturan termasuk GEMINI_API_KEY dari Spreadsheet
+          if (json.data.settings) {
+            if (json.data.settings.GEMINI_API_KEY && json.data.settings.GEMINI_API_KEY.trim() !== '') {
+              appState.geminiApiKey = json.data.settings.GEMINI_API_KEY.trim();
+              localStorage.setItem('FINTRACK_GEMINI_API_KEY', appState.geminiApiKey);
+              const keyInput = document.getElementById('settingGeminiApiKey');
+              if (keyInput) keyInput.value = appState.geminiApiKey;
+            }
+          }
           saveToLocalStorage();
           updateConnectionStatus(true);
           renderAll();
@@ -1494,6 +1531,22 @@
       } catch (err) {
         console.warn('Gagal sinkron dengan Apps Script:', err);
         updateConnectionStatus(false);
+      }
+    }
+
+    async function postToGas(action, payload) {
+      if (!appState.gasUrl) return null;
+      try {
+        const cleanUrl = appState.gasUrl.replace(/\/+$/, '');
+        const res = await fetch(cleanUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: action, payload: payload })
+        });
+        return await res.json().catch(() => ({}));
+      } catch (err) {
+        console.warn('Gagal panggil Apps Script (' + action + '):', err);
+        return null;
       }
     }
 
@@ -2158,17 +2211,7 @@
       closeModal('recurringModal');
       document.getElementById('recurringForm').reset();
 
-      if (appState.gasUrl) {
-        try {
-          await fetch(appState.gasUrl, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'addRecurring', payload: newRec })
-          });
-        } catch (err) {
-          console.warn('Gagal simpan rutin ke GAS:', err);
-        }
-      }
-
+      postToGas('addRecurring', newRec);
       alert(`Jadwal rutin "${judul}" berhasil ditambahkan!`);
     }
 
@@ -2180,17 +2223,7 @@
       appState.recurring = appState.recurring.filter(r => r.id !== id);
       saveToLocalStorage();
       renderRecurring();
-
-      if (appState.gasUrl) {
-        try {
-          await fetch(appState.gasUrl, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'deleteRecurring', payload: { id: id } })
-          });
-        } catch (err) {
-          console.warn('Gagal hapus rutin di GAS:', err);
-        }
-      }
+      postToGas('deleteRecurring', { id: id });
     }
 
     async function executeRecurringItem(id) {
@@ -2218,17 +2251,7 @@
       appState.transactions.unshift(newTrx);
       saveToLocalStorage();
       renderAll();
-
-      if (appState.gasUrl) {
-        try {
-          await fetch(appState.gasUrl, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'executeRecurring', payload: { id: id } })
-          });
-        } catch (e) {
-          console.warn('Gagal sinkron rutin:', e);
-        }
-      }
+      postToGas('executeRecurring', { id: id });
 
       alert(`Transaksi rutin "${target.judul}" berhasil dicatat ke pembukuan!`);
     }
@@ -2477,22 +2500,10 @@
       closeModal('addModal');
       document.getElementById('addTrxForm').reset();
 
-      if (appState.gasUrl) {
-        try {
-          await fetch(appState.gasUrl, {
-            method: 'POST',
-            body: JSON.stringify({
-              action: 'addTransaction',
-              payload: {
-                ...newTrx,
-                imageBase64: imageBase64
-              }
-            })
-          });
-        } catch (err) {
-          console.warn('Gagal simpan ke Apps Script:', err);
-        }
-      }
+      postToGas('addTransaction', {
+        ...newTrx,
+        imageBase64: imageBase64
+      });
     }
 
     // --- SCAN STRUK & OCR LOGIC (MULTI-ITEM BATCH VERIFICATION) ---
@@ -2539,9 +2550,148 @@
         const previewContainer = document.getElementById('scanPreviewContainer');
         if (previewContainer) previewContainer.classList.remove('hidden');
 
-        await runOCR(file);
+        // Prioritas Utama: Jalankan Gemini AI Vision jika API Key tersedia
+        if (appState.geminiApiKey && appState.geminiApiKey.trim() !== '') {
+          await runGeminiVision(file, scannedImageBase64);
+        } else {
+          await runOCR(file);
+        }
       };
       reader.readAsDataURL(file);
+    }
+
+    async function runGeminiVision(file, base64) {
+      const statusBox = document.getElementById('ocrStatusBox');
+      const statusText = document.getElementById('ocrStatusText');
+      const progressText = document.getElementById('ocrProgressText');
+
+      if (statusBox) statusBox.classList.remove('hidden');
+      if (statusText) statusText.textContent = '🧠 Menjalankan Gemini AI Vision...';
+      if (progressText) progressText.textContent = 'Menganalisis foto struk, tanggal, jam, dan daftar nama barang...';
+
+      try {
+        const mimeType = file.type || 'image/jpeg';
+        const cleanBase64 = base64.includes(',') ? base64.split(',')[1] : base64;
+
+        const promptText = `Kamu adalah AI akuntan cerdas pemindai struk belanja (receipt scanner) untuk aplikasi DompetKu.
+Tugasmu: Analisis gambar struk belanja ini secara detail dan teliti.
+Ekstrak seluruh informasi struk dalam format JSON murni TANPA markdown, TANPA kode backtick (\`\`\`).
+
+Format JSON WAJIB seperti ini:
+{
+  "merchant": "Nama Toko / Minimarket / Restoran",
+  "tanggal": "YYYY-MM-DD", // format YYYY-MM-DD jika tertera, jika tidak ada isi null
+  "waktu": "HH:mm", // format 24 jam misal '14:35', jika tidak ada isi null
+  "items": [
+    {
+      "nama": "Nama barang belanjaan yang rapi (perbaiki singkatan kasir minimarket misal: INDMIE -> Indomie, ROTI TWR -> Roti Tawar)",
+      "nominal": 15000, // angka murni integer positif tanpa titik/koma/simbol Rp
+      "kategori": "Makanan & Minuman" // salah satu dari: 'Makanan & Minuman', 'Transportasi & Bensin', 'Belanja Kebutuhan', 'Tagihan & Utilitas', 'Hiburan & Hobi'
+    }
+  ],
+  "total": 45000 // total nominal belanja
+}
+
+Aturan Mutlak:
+1. Pisahkan setiap barang menjadi baris tersendiri di array 'items'.
+2. JANGAN masukkan kata-kata seperti SUBTOTAL, TOTAL, PAJAK, PPN, DISKON, TUNAI, CASH, KEMBALIAN, NOMOR STRUK, KASIR sebagai nama barang.
+3. Kategori barang harus disesuaikan secara logis dengan barangnya.
+4. Nominal wajib angka bulat murni (contoh: 12500, bukan "12.500" atau "Rp 12.500").`;
+
+        const requestBody = {
+          contents: [
+            {
+              parts: [
+                { text: promptText },
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: cleanBase64
+                  }
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.1
+          }
+        };
+
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(appState.geminiApiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error?.message || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        const rawJsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawJsonText) {
+          throw new Error('Gemini tidak memberikan balasan teks terstruktur.');
+        }
+
+        let result;
+        try {
+          result = JSON.parse(rawJsonText);
+        } catch (e) {
+          const matched = rawJsonText.match(/\{[\s\S]*\}/);
+          if (matched) result = JSON.parse(matched[0]);
+          else throw e;
+        }
+
+        // 1. Tanggal Struk
+        if (result.tanggal && /^\d{4}-\d{2}-\d{2}$/.test(result.tanggal)) {
+          const tglEl = document.getElementById('scanTanggal');
+          if (tglEl) tglEl.value = result.tanggal;
+        }
+
+        // 2. Jam Transaksi
+        if (result.waktu && /^\d{2}:\d{2}/.test(result.waktu)) {
+          const wktEl = document.getElementById('scanWaktu');
+          if (wktEl) wktEl.value = result.waktu.substring(0, 5);
+        }
+
+        // 3. Items Multi-Barang
+        if (result.items && Array.isArray(result.items) && result.items.length > 0) {
+          appState.scannedItems = result.items.map((it, idx) => ({
+            id: 'SI-' + Date.now() + '-' + idx,
+            nama: cleanItemName(it.nama) || 'Barang Struk',
+            nominal: Number(it.nominal) || 0,
+            kategori: it.kategori || suggestCategoryForName(it.nama),
+            selected: true
+          })).filter(it => it.nominal > 0);
+        }
+
+        if (!appState.scannedItems || appState.scannedItems.length === 0) {
+          const totalFallback = Number(result.total) || 0;
+          appState.scannedItems = [{
+            id: 'SI-' + Date.now(),
+            nama: result.merchant ? `Belanja ${result.merchant}` : 'Belanja Struk',
+            nominal: totalFallback,
+            kategori: 'Belanja Kebutuhan',
+            selected: true
+          }];
+        }
+
+        if (statusText) statusText.textContent = '✨ Pemindaian Gemini AI Selesai!';
+        if (progressText) progressText.textContent = `${appState.scannedItems.length} barang berhasil terdeteksi (${result.merchant || 'Struk'}). Silakan periksa & sesuaikan.`;
+
+        renderScannedItems();
+        setTimeout(() => {
+          if (statusBox) statusBox.classList.add('hidden');
+        }, 4000);
+
+      } catch (err) {
+        console.warn('Gemini AI Vision gagal/offline, beralih ke Tesseract OCR:', err);
+        if (statusText) statusText.textContent = 'Gemini offline / kuota habis. Menjalankan Tesseract OCR...';
+        if (progressText) progressText.textContent = 'Membaca teks lokal via browser...';
+        await runOCR(file);
+      }
     }
 
     async function runOCR(file) {
@@ -2957,24 +3107,12 @@
       closeModal('scanModal');
 
       // Sinkronkan ke Google Apps Script via batch endpoint
-      if (appState.gasUrl) {
-        try {
-          await fetch(appState.gasUrl, {
-            method: 'POST',
-            body: JSON.stringify({
-              action: 'addBatchTransactions',
-              payload: {
-                tanggal: tanggalInput,
-                dompetAsal: dompet,
-                imageBase64: scannedImageBase64,
-                items: batchPayloadItems
-              }
-            })
-          });
-        } catch (err) {
-          console.warn('Gagal sinkron batch struk ke Apps Script:', err);
-        }
-      }
+      postToGas('addBatchTransactions', {
+        tanggal: tanggalInput,
+        dompetAsal: dompet,
+        imageBase64: scannedImageBase64,
+        items: batchPayloadItems
+      });
 
       alert(`Berhasil menyimpan ${newTransactions.length} item belanja (${formatRupiah(totalPengeluaran)}) ke rekening ${dompet}!`);
     }
@@ -3024,16 +3162,7 @@
       closeModal('transferModal');
       document.getElementById('transferForm').reset();
 
-      if (appState.gasUrl) {
-        try {
-          await fetch(appState.gasUrl, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'transferWallet', payload: newTrx })
-          });
-        } catch (err) {
-          console.warn('Gagal sinkron transfer:', err);
-        }
-      }
+      postToGas('transferWallet', newTrx);
 
       alert('Transfer saldo antar rekening berhasil dicatat!');
     }
@@ -3078,53 +3207,113 @@
       saveToLocalStorage();
       renderAll();
 
-      if (appState.gasUrl) {
-        try {
-          await fetch(appState.gasUrl, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'deleteTransaction', payload: { id: id } })
-          });
-        } catch (e) {
-          console.warn('Gagal hapus di Apps Script:', e);
-        }
-      }
+      postToGas('deleteTransaction', { id: id });
     }
 
     // --- SETTINGS & HELPERS ---
     function openSettingsModal() {
-      document.getElementById('settingGasUrl').value = appState.gasUrl;
+      const urlInput = document.getElementById('settingGasUrl');
+      if (urlInput) urlInput.value = appState.gasUrl || DEFAULT_GAS_URL;
+      const keyInput = document.getElementById('settingGeminiApiKey');
+      if (keyInput) keyInput.value = appState.geminiApiKey || DEFAULT_GEMINI_API_KEY;
       document.getElementById('settingsModal').classList.remove('hidden');
     }
 
     function saveSettings() {
       const url = document.getElementById('settingGasUrl').value.trim();
-      appState.gasUrl = url;
-      localStorage.setItem('FINTRACK_GAS_URL', url);
+      const geminiKey = document.getElementById('settingGeminiApiKey').value.trim();
+
+      appState.gasUrl = url || DEFAULT_GAS_URL;
+      localStorage.setItem('FINTRACK_GAS_URL', appState.gasUrl);
+
+      appState.geminiApiKey = geminiKey || DEFAULT_GEMINI_API_KEY;
+      localStorage.setItem('FINTRACK_GEMINI_API_KEY', appState.geminiApiKey);
+
+      // Simpan juga ke Google Spreadsheet jika terhubung
+      if (appState.gasUrl && geminiKey) {
+        postToGas('updateSetting', { key: 'GEMINI_API_KEY', value: geminiKey });
+      }
+
       closeModal('settingsModal');
-      if (url) {
+      if (appState.gasUrl) {
         fetchFromGoogleAppsScript();
       } else {
         updateConnectionStatus(false);
       }
-      alert('Pengaturan berhasil disimpan!');
+      alert('Pengaturan URL & Kunci Gemini AI berhasil disimpan!');
+    }
+
+    function resetToDefaultGasUrl() {
+      const urlInput = document.getElementById('settingGasUrl');
+      if (urlInput) urlInput.value = DEFAULT_GAS_URL;
+      appState.gasUrl = DEFAULT_GAS_URL;
+      localStorage.setItem('FINTRACK_GAS_URL', DEFAULT_GAS_URL);
+      alert('URL Google Apps Script telah direset ke URL aktif terbaru:\n' + DEFAULT_GAS_URL);
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.classList.add('text-brand-teal');
+        btn.classList.remove('text-slate-400');
+      } else {
+        input.type = 'password';
+        btn.classList.remove('text-brand-teal');
+        btn.classList.add('text-slate-400');
+      }
+    }
+
+    async function testGeminiApiKey() {
+      const keyInput = document.getElementById('settingGeminiApiKey');
+      const key = (keyInput ? keyInput.value : appState.geminiApiKey || '').trim();
+      if (!key) {
+        alert('Masukkan Google Gemini API Key terlebih dahulu!');
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: "Halo, tes koneksi API Gemini." }] }]
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.candidates) {
+          alert('Koneksi Google Gemini AI Sukses!\n\nKunci API aktif dan siap digunakan untuk membaca struk belanja.');
+        } else {
+          alert('Koneksi Gemini Gagal: ' + (data.error?.message || JSON.stringify(data)));
+        }
+      } catch (err) {
+        alert('Gagal menghubungi server Gemini AI: ' + err.message);
+      }
     }
 
     async function testConnection() {
-      const url = document.getElementById('settingGasUrl').value.trim();
+      const input = document.getElementById('settingGasUrl');
+      const url = (input ? input.value : appState.gasUrl || '').trim();
       if (!url) {
         alert('Masukkan URL Google Apps Script terlebih dahulu!');
         return;
       }
       try {
-        const res = await fetch(`${url}?action=ping`);
+        const cleanUrl = url.replace(/\/+$/, '');
+        const res = await fetch(`${cleanUrl}?action=ping`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
         const json = await res.json();
         if (json.status === 'success') {
-          alert('Koneksi Sukses! Backend Apps Script merespons: ' + json.message);
+          alert('Koneksi Sukses! Backend Apps Script merespons:\n' + json.message);
+          updateConnectionStatus(true);
         } else {
-          alert('Koneksi Gagal: ' + JSON.stringify(json));
+          alert('Koneksi Gagal: ' + (json.message || JSON.stringify(json)));
         }
       } catch (err) {
-        alert('Gagal menghubungi URL. Pastikan deployment Web App diset ke "Anyone" (Siapa saja)!');
+        alert('Gagal menghubungi URL. Silakan periksa:\n1. Buka link Web App langsung di tab baru browser untuk melihat respons Google.\n2. Pastikan di Apps Script Anda ada 2 file: Code.gs dan setup.gs.\n3. Pastikan deployment Web App diset ke "Anyone" (Siapa saja)!');
       }
     }
 
@@ -3134,15 +3323,11 @@
         return;
       }
       try {
-        const res = await fetch(appState.gasUrl, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'backupToDrive' })
-        });
-        const json = await res.json();
-        if (json.status === 'success') {
-          alert('Backup Berhasil! File telah tersimpan di Google Drive: ' + json.fileName);
+        const json = await postToGas('backupToDrive', {});
+        if (json && json.status === 'success') {
+          alert('Backup Berhasil! File telah tersimpan di Google Drive:\n' + json.fileName);
         } else {
-          alert('Backup Gagal: ' + json.message);
+          alert('Backup Gagal: ' + (json ? json.message : 'Tidak ada respon dari server.'));
         }
       } catch (e) {
         alert('Terjadi kesalahan saat membackup ke Drive.');
