@@ -2727,6 +2727,41 @@
       renderScannedItems();
     }
 
+    // Auto-Discovery Model Gemini Aktif dari Browser
+    async function resolveClientGeminiModel(apiKey) {
+      const candidates = [
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-flash-latest',
+        'gemini-1.5-flash-002',
+        'gemini-1.5-flash',
+        'gemini-2.5-flash',
+        'gemini-1.5-pro'
+      ];
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
+          method: 'GET',
+          headers: { 'x-goog-api-key': apiKey }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.models && Array.isArray(data.models)) {
+            const supported = data.models
+              .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
+              .map(m => m.name.replace(/^models\//, ''));
+            for (const cand of candidates) {
+              if (supported.includes(cand)) return cand;
+            }
+            const anyFlash = supported.find(m => m.includes('flash') || m.includes('gemini'));
+            if (anyFlash) return anyFlash;
+          }
+        }
+      } catch (e) {
+        console.warn('Gagal list models di browser:', e);
+      }
+      return 'gemini-2.0-flash';
+    }
+
     async function runGeminiVision(file, base64, apiKey) {
       const statusBox = document.getElementById('ocrStatusBox');
       const statusText = document.getElementById('ocrStatusText');
@@ -2739,30 +2774,34 @@
       const mimeType = 'image/jpeg';
       const cleanBase64 = base64.includes(',') ? base64.split(',')[1] : base64;
 
-      const promptText = `Kamu adalah AI akuntan cerdas pemindai struk belanja (receipt scanner) untuk aplikasi DompetKu.
-Tugasmu: Analisis gambar struk belanja ini secara detail dan teliti.
-Ekstrak seluruh informasi struk dalam format JSON murni TANPA markdown, TANPA kode backtick (\`\`\`).
+      const promptText = `Kamu adalah AI akuntan keuangan cerdas spesialis pemindai struk belanja (receipt scanner) untuk aplikasi DompetKu.
+Tugasmu: Menganalisis gambar struk belanja ini secara visual untuk memilih kata-kata nama produk dan mencocokkan harganya agar form transaksi terisi otomatis (auto-fill).
 
-Format JSON WAJIB seperti ini:
+Langkah-langkah analisis gambar:
+1. Baca judul/header teratas untuk mendeteksi 'merchant' (Nama Toko / Minimarket / Restoran / SPBU).
+2. Cari baris tanggal transaksi: ubah ke format YYYY-MM-DD (contoh: 2026-11-17). Jika tidak ada, gunakan tanggal hari ini.
+3. Cari baris waktu/jam transaksi: ubah ke format HH:mm 24 jam (contoh: 14:35). Jika tidak ada, kosongkan string ("").
+4. Analisis daftar baris belanjaan (Line Items):
+   - Pilih kata-kata nama produk barang fisik yang dibeli (singkatan kasir minimarket harap diperbaiki menjadi nama wajar, misal: INDMIE -> Indomie, ROTI TWR -> Roti Tawar, MINYAK GOR -> Minyak Goreng).
+   - Ambil nominal harga akhir barang tersebut. Nominal WAJIB angka bulat positif murni (integer) tanpa titik/koma/simbol Rp.
+   - Kategori per barang harus dipilih yang paling cocok dari: 'Makanan & Minuman', 'Belanja Kebutuhan', 'Transportasi & Bensin', 'Kesehatan & Obat', 'Hiburan & Hobi', 'Tagihan & Utilitas', atau 'Lainnya'.
+   - JANGAN masukkan kata-kata seperti TOTAL, SUBTOTAL, CASH, TUNAI, KEMBALIAN, PPN, PAJAK, KASIR, DISKON, CHANGE sebagai barang belanja!
+5. Hitung total nominal belanja.
+
+Keluarkan hasil HANYA dalam format JSON valid berikut (tanpa backtick markdown \`\`\`, tanpa teks pengantar):
 {
-  "merchant": "Nama Toko / Minimarket / Restoran",
+  "merchant": "Nama Toko",
   "tanggal": "YYYY-MM-DD",
   "waktu": "HH:mm",
   "items": [
     {
-      "nama": "Nama barang belanjaan yang rapi (perbaiki singkatan kasir minimarket misal: INDMIE -> Indomie, ROTI TWR -> Roti Tawar)",
+      "nama": "Nama Produk Bersih",
       "nominal": 15000,
       "kategori": "Makanan & Minuman"
     }
   ],
-  "total": 45000
-}
-
-Aturan Mutlak:
-1. Pisahkan setiap barang menjadi baris tersendiri di array 'items'.
-2. JANGAN masukkan kata-kata seperti SUBTOTAL, TOTAL, PAJAK, PPN, DISKON, TUNAI, CASH, KEMBALIAN, NOMOR STRUK, KASIR sebagai nama barang.
-3. Kategori barang harus disesuaikan secara logis dengan barangnya ('Makanan & Minuman', 'Belanja Kebutuhan', 'Transportasi & Bensin', 'Kesehatan & Obat', 'Hiburan & Hobi', 'Tagihan & Utilitas', atau 'Lainnya').
-4. Nominal wajib angka bulat murni positif (contoh: 12500, bukan "12.500" atau "Rp 12.500").`;
+  "total": 15000
+}`;
 
       const requestBody = {
         contents: [
@@ -2784,43 +2823,81 @@ Aturan Mutlak:
         }
       };
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
-        },
-        body: JSON.stringify(requestBody)
-      });
+      const preferredModel = await resolveClientGeminiModel(apiKey);
+      const candidates = [
+        preferredModel,
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-flash-latest',
+        'gemini-1.5-flash-002',
+        'gemini-1.5-flash',
+        'gemini-2.5-flash',
+        'gemini-1.5-pro'
+      ];
+      const modelsToTry = [...new Set(candidates)];
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `HTTP ${res.status}`);
+      let lastError = '';
+      for (const modelName of modelsToTry) {
+        try {
+          if (progressText) progressText.textContent = `Menganalisis struk dengan model ${modelName}...`;
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            const msg = errData.error?.message || `HTTP ${res.status}`;
+            lastError = msg;
+            console.warn(`Model ${modelName} gagal:`, msg);
+            // Jika model tidak ditemukan / 404, coba kandidat model berikutnya
+            if (res.status === 404 || msg.includes('not found') || msg.includes('not supported')) {
+              continue;
+            } else {
+              throw new Error(msg);
+            }
+          }
+
+          const data = await res.json();
+          const rawJsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!rawJsonText) {
+            throw new Error('Gemini tidak memberikan balasan teks terstruktur.');
+          }
+
+          let result;
+          try {
+            result = JSON.parse(rawJsonText);
+          } catch (e) {
+            const matched = rawJsonText.match(/\{[\s\S]*\}/);
+            if (matched) result = JSON.parse(matched[0]);
+            else throw e;
+          }
+
+          applyScanResult(result);
+
+          if (statusText) statusText.textContent = '✨ Pemindaian Gemini AI Selesai!';
+          if (progressText) progressText.textContent = `${appState.scannedItems.length} barang berhasil terdeteksi (${result.merchant || 'Struk'}). Silakan periksa & sesuaikan.`;
+
+          setTimeout(() => {
+            if (statusBox) statusBox.classList.add('hidden');
+          }, 4000);
+          return;
+
+        } catch (mErr) {
+          lastError = mErr.message;
+          if (mErr.message.includes('not found') || mErr.message.includes('not supported') || mErr.message.includes('404')) {
+            continue;
+          } else {
+            throw mErr;
+          }
+        }
       }
 
-      const data = await res.json();
-      const rawJsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawJsonText) {
-        throw new Error('Gemini tidak memberikan balasan teks terstruktur.');
-      }
-
-      let result;
-      try {
-        result = JSON.parse(rawJsonText);
-      } catch (e) {
-        const matched = rawJsonText.match(/\{[\s\S]*\}/);
-        if (matched) result = JSON.parse(matched[0]);
-        else throw e;
-      }
-
-      applyScanResult(result);
-
-      if (statusText) statusText.textContent = '✨ Pemindaian Gemini AI Selesai!';
-      if (progressText) progressText.textContent = `${appState.scannedItems.length} barang berhasil terdeteksi (${result.merchant || 'Struk'}). Silakan periksa & sesuaikan.`;
-
-      setTimeout(() => {
-        if (statusBox) statusBox.classList.add('hidden');
-      }, 4000);
+      throw new Error(`Semua kandidat model Gemini dicoba namun belum berhasil (${lastError})`);
     }
 
     async function runOCR(file) {
@@ -3403,16 +3480,20 @@ Aturan Mutlak:
       }
 
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+        const activeModel = await resolveClientGeminiModel(key);
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${encodeURIComponent(key)}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': key
+          },
           body: JSON.stringify({
             contents: [{ parts: [{ text: "Halo, tes koneksi API Gemini." }] }]
           })
         });
         const data = await res.json();
         if (res.ok && data.candidates) {
-          alert('Koneksi Google Gemini AI Sukses!\n\nKunci API aktif dan siap digunakan untuk membaca struk belanja.');
+          alert(`Koneksi Google Gemini AI Sukses!\n\nModel aktif terhubung: ${activeModel}\nKunci API siap digunakan untuk membaca struk belanja.`);
         } else {
           alert('Koneksi Gemini Gagal: ' + (data.error?.message || JSON.stringify(data)));
         }
