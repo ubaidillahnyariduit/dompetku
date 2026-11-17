@@ -371,7 +371,7 @@
         </div>
       </div>
 
-      <!-- Donut Distribusi per Dompet (BRI, BJB 1, BJB 2, Cash) -->
+      <!-- Donut Distribusi per Dompet (BRI, BJB 1, BJB 2, Tunai) -->
       <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col">
         <div class="mb-3">
           <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
@@ -388,11 +388,11 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- ROW 4: REKENING SAYA (BRI, BJB 1, BJB 2, CASH) & JADWAL RUTIN       -->
+    <!-- ROW 4: REKENING SAYA (BRI, BJB 1, BJB 2, TUNAI) & JADWAL RUTIN      -->
     <!-- =================================================================== -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       
-      <!-- List Dompet & Saldo (BRI, BJB 1, BJB 2, Cash) -->
+      <!-- List Dompet & Saldo (BRI, BJB 1, BJB 2, Tunai) -->
       <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -400,7 +400,7 @@
               <svg class="w-4 h-4 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
               Rekening & Dompet Saya
             </h3>
-            <p class="text-xs text-slate-400">Saldo aktif: BRI, BJB 1, BJB 2, dan Cash</p>
+            <p class="text-xs text-slate-400">Saldo aktif: BRI, BJB 1, BJB 2, dan Tunai</p>
           </div>
           <button onclick="openTransferModal()" class="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-sky-600 transition">
             + Transfer Antar Rekening
@@ -438,20 +438,20 @@
     <!-- =================================================================== -->
     <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
       
-      <!-- Toolbar Tabel -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <!-- Toolbar Tabel Tingkat Lanjut (Pencarian, Filter Waktu & Sortir) -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div>
           <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
             Riwayat Transaksi Keuangan
           </h3>
-          <p class="text-xs text-slate-400">Catatan pemasukan, pengeluaran & bukti struk</p>
+          <p class="text-xs text-slate-400">Catatan pemasukan, pengeluaran & bukti struk belanja</p>
         </div>
 
-        <!-- Filter & Search Input & Export (ANTI-AUTOFILL FIX) -->
+        <!-- Filter & Search Controls -->
         <div class="flex flex-wrap items-center gap-2">
           <!-- Search Input: autocomplete off & sanitized name -->
           <div class="relative">
-            <input type="text" id="searchInput" name="search_transaksi_dompetku" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="renderTable()" placeholder="Cari catatan..." class="bg-slate-50 border border-slate-300 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-pink focus:bg-white transition w-44 sm:w-56">
+            <input type="text" id="searchInput" name="search_transaksi_dompetku" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="renderTable()" placeholder="Cari catatan / toko..." class="bg-slate-50 border border-slate-300 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-pink focus:bg-white transition w-40 sm:w-48">
             <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </div>
 
@@ -461,16 +461,48 @@
           </select>
 
           <!-- Export Excel -->
-          <button onclick="exportToCSV()" title="Unduh CSV / Excel" class="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition">
+          <button onclick="exportToCSV()" title="Unduh CSV / Excel" class="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition active:scale-95">
             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Excel
           </button>
 
           <!-- Print / PDF -->
-          <button onclick="printReport()" title="Cetak / Simpan PDF" class="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition">
+          <button onclick="printReport()" title="Cetak / Simpan PDF" class="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition active:scale-95">
             <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
             Cetak
           </button>
+        </div>
+      </div>
+
+      <!-- Baris Khusus: Filter Periode & Sortir Tabel Mandiri (Tanggal, Bulan, Rentang) -->
+      <div class="flex flex-wrap items-center justify-between gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-slate-500 font-bold text-[11px] uppercase tracking-wider">Filter Riwayat:</span>
+          
+          <!-- Mode Waktu Riwayat -->
+          <select id="tableFilterMode" onchange="onTableFilterModeChange(this.value)" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:border-brand-pink transition cursor-pointer">
+            <option value="DASHBOARD">Ikuti Dashboard Atas</option>
+            <option value="DATE">Spesifik per Tanggal</option>
+            <option value="MONTH">Spesifik per Bulan</option>
+            <option value="RANGE">Rentang Tanggal (Dari - Sampai)</option>
+            <option value="ALL">Semua Waktu (Tanpa Batas)</option>
+          </select>
+
+          <!-- Input Kontrol Dinamis untuk Filter Riwayat -->
+          <div id="tableFilterDynamicControls" class="inline-flex flex-wrap items-center gap-1.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Sortir Urutan -->
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 font-bold text-[11px] uppercase tracking-wider">Urutkan:</span>
+          <select id="tableSortOrder" onchange="renderTable()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-700 focus:outline-none focus:border-brand-pink transition cursor-pointer">
+            <option value="NEWEST">Tanggal Terbaru ⬇️</option>
+            <option value="OLDEST">Tanggal Terlama ⬆️</option>
+            <option value="HIGHEST">Nominal Terbesar ⬇️</option>
+            <option value="LOWEST">Nominal Terkecil ⬆️</option>
+          </select>
         </div>
       </div>
 
@@ -608,88 +640,136 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- MODAL: SCAN STRUK DENGAN OCR KAMERA HP & GOOGLE DRIVE                -->
+  <!-- MODAL: SCAN STRUK DENGAN OCR KAMERA HP & VERIFIKASI MULTI-ITEM       -->
   <!-- ===================================================================== -->
-  <div id="scanModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-    <div class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 max-w-md w-full shadow-2xl space-y-4">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+  <div id="scanModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 max-w-2xl w-full shadow-2xl space-y-3.5 max-h-[92vh] flex flex-col my-auto">
+      
+      <!-- Header Modal -->
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100 flex-shrink-0">
         <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
           <svg class="w-5 h-5 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          Scan Struk & Catatan (OCR)
+          Scan Struk & Verifikasi Multi-Item
         </h3>
         <button onclick="closeModal('scanModal')" class="text-slate-400 hover:text-slate-700 p-1">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <!-- Area Upload / Kamera -->
-      <div class="border-2 border-dashed border-slate-300 hover:border-brand-teal rounded-2xl p-4 text-center cursor-pointer transition relative bg-slate-50" onclick="document.getElementById('receiptCameraInput').click()">
-        <input type="file" id="receiptCameraInput" accept="image/*" capture="environment" onchange="handleReceiptFile(this)" class="hidden">
-        
-        <div id="scanPlaceholder">
-          <div class="w-12 h-12 mx-auto mb-2 rounded-2xl bg-sky-50 text-brand-teal flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
+      <!-- Area Upload / Kamera & Preview (Compact) -->
+      <div class="flex-shrink-0 space-y-2">
+        <div class="border-2 border-dashed border-slate-300 hover:border-brand-teal rounded-2xl p-2.5 sm:p-3 text-center cursor-pointer transition relative bg-slate-50" onclick="document.getElementById('receiptCameraInput').click()">
+          <input type="file" id="receiptCameraInput" accept="image/*" capture="environment" onchange="handleReceiptFile(this)" class="hidden">
+          
+          <div id="scanPlaceholder" class="flex items-center justify-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-sky-50 text-brand-teal flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
+            </div>
+            <div class="text-left">
+              <p class="text-xs font-bold text-slate-800">Ambil Foto Struk via Kamera HP / Unggah Gambar</p>
+              <p class="text-[10px] text-slate-500">Sistem otomatis mendeteksi baris nama barang & harga</p>
+            </div>
           </div>
-          <p class="text-xs font-bold text-slate-800">Ambil Foto Struk via Kamera HP</p>
-          <p class="text-[11px] text-slate-500 mt-1">atau klik untuk memilih foto struk dari galeri</p>
+
+          <!-- Preview Image Container (Compact thumbnail) -->
+          <div id="scanPreviewContainer" class="hidden flex items-center justify-between gap-3 text-left">
+            <div class="flex items-center gap-3">
+              <img id="scanPreviewImg" src="" alt="Preview Struk" class="h-11 w-11 rounded-lg border border-slate-200 object-cover shadow-sm">
+              <div>
+                <p class="text-xs font-bold text-slate-800">Foto Struk Terpilih</p>
+                <p class="text-[10px] text-brand-teal font-semibold">Klik area ini jika ingin mengganti foto</p>
+              </div>
+            </div>
+            <span class="px-2 py-1 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">Ganti Foto</span>
+          </div>
         </div>
 
-        <!-- Preview Image Container -->
-        <div id="scanPreviewContainer" class="hidden">
-          <img id="scanPreviewImg" src="" alt="Preview Struk" class="max-h-48 mx-auto rounded-xl border border-slate-200 object-contain mb-2 shadow-sm">
-          <p class="text-[11px] text-brand-teal font-semibold">Foto siap dianalisis. Klik untuk ganti foto.</p>
+        <!-- OCR Status Box -->
+        <div id="ocrStatusBox" class="hidden p-2.5 rounded-xl bg-sky-50 border border-sky-200 flex items-center gap-2.5">
+          <div class="w-4 h-4 rounded-full border-2 border-brand-teal border-t-transparent animate-spin flex-shrink-0"></div>
+          <div class="text-xs">
+            <p id="ocrStatusText" class="font-bold text-brand-teal text-xs">Memindai teks struk...</p>
+            <p id="ocrProgressText" class="text-[10px] text-slate-500">Menganalisis baris barang dan harga</p>
+          </div>
         </div>
       </div>
 
-      <!-- OCR Status Box -->
-      <div id="ocrStatusBox" class="hidden p-3 rounded-xl bg-sky-50 border border-sky-200 flex items-center gap-3">
-        <div class="w-4 h-4 rounded-full border-2 border-brand-teal border-t-transparent animate-spin"></div>
-        <div class="text-xs">
-          <p id="ocrStatusText" class="font-bold text-brand-teal">Memindai teks struk...</p>
-          <p id="ocrProgressText" class="text-[10px] text-slate-500">Mendeteksi nominal total belanja</p>
-        </div>
-      </div>
-
-      <!-- Form Hasil Scan / Koreksi Cepat -->
-      <form id="scanResultForm" onsubmit="submitScanTransaction(event)" class="space-y-3">
+      <!-- Form Pengaturan Global Struk (Tanggal, Jam, Rekening) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200 flex-shrink-0 text-xs">
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Nominal Terdeteksi</label>
-          <div class="relative">
-            <span class="absolute left-3 top-2 text-sm font-bold text-slate-400">Rp</span>
-            <input type="text" id="scanNominal" required placeholder="0" oninput="formatRupiahInput(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-3 py-1.5 text-base font-black text-brand-pink focus:outline-none focus:border-brand-pink focus:bg-white transition">
-          </div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Tanggal Struk</label>
+          <input type="date" id="scanTanggal" required class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink transition">
         </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal</label>
-            <input type="date" id="scanTanggal" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">Kategori</label>
-            <select id="scanKategori" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
-              <!-- Populated by JS -->
-            </select>
-          </div>
-        </div>
-
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Potong Dari Rekening</label>
-          <select id="scanDompet" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
-            <!-- Populated by JS -->
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Jam Transaksi</label>
+          <input type="time" id="scanWaktu" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Potong Dari Rekening</label>
+          <select id="scanDompet" required class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink transition">
+            <!-- Populated by JS: BRI, BJB 1, BJB 2, Tunai -->
           </select>
         </div>
+      </div>
 
+      <!-- Header Daftar Barang & Tombol Aksi Tambah -->
+      <div class="flex items-center justify-between flex-shrink-0 pt-0.5">
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Keterangan Belanja</label>
-          <input type="text" id="scanCatatan" placeholder="Contoh: Belanja supermarket Indomaret" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink focus:bg-white transition">
+          <h4 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+            <span>Daftar Barang Terdeteksi</span>
+            <span id="scanItemCountBadge" class="px-2 py-0.5 rounded-full bg-brand-pinkLight text-brand-pink text-[10px] font-bold">0 Item</span>
+          </h4>
+          <p class="text-[10px] text-slate-400">Centang barang yang valid dan koreksi nama/harga jika diperlukan</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="addManualScanItemRow()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 active:scale-95">
+            <svg class="w-3.5 h-3.5 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tambah
+          </button>
+          <button type="button" onclick="toggleSelectAllScannedItems()" id="btnToggleSelectAllScan" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-semibold transition active:scale-95">
+            Pilih Semua
+          </button>
+        </div>
+      </div>
+
+      <!-- Container Tabel Item Barang (Scrollable) -->
+      <div class="flex-1 overflow-y-auto border border-slate-200 rounded-2xl min-h-[140px] max-h-56 sm:max-h-64">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+            <tr>
+              <th class="py-2 px-2.5 w-8 text-center">Pilih</th>
+              <th class="py-2 px-2.5">Nama Barang</th>
+              <th class="py-2 px-2.5 w-28 sm:w-32">Harga (Rp)</th>
+              <th class="py-2 px-2.5 w-32 sm:w-36">Kategori</th>
+              <th class="py-2 px-2 w-10 text-center">Hapus</th>
+            </tr>
+          </thead>
+          <tbody id="scannedItemsTableBody" class="divide-y divide-slate-100 bg-white">
+            <tr>
+              <td colspan="5" class="text-center py-8 text-slate-400 text-xs">Belum ada barang di-scan. Ambil atau unggah foto struk di atas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary & Tombol Aksi Simpan -->
+      <div class="pt-2 border-t border-slate-100 flex-shrink-0 space-y-2.5">
+        <div class="flex items-center justify-between px-3 bg-slate-50 py-2 rounded-xl border border-slate-200">
+          <span class="text-xs font-bold text-slate-600">Total Belanja Terpilih:</span>
+          <span id="scanTotalCalculated" class="text-base font-black text-brand-pink">Rp 0</span>
         </div>
 
-        <div class="pt-2 flex items-center gap-2">
+        <div class="flex items-center gap-2">
           <button type="button" onclick="closeModal('scanModal')" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">Batal</button>
-          <button type="submit" id="btnSaveScan" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-brand-teal to-brand-tealHover text-xs font-bold text-white shadow-md shadow-brand-teal/20 transition">Simpan ke Sheets & Drive</button>
+          <button type="button" onclick="submitMultiScanTransactions()" id="btnSaveMultiScan" class="flex-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-brand-teal to-brand-tealHover text-xs font-bold text-white shadow-md shadow-brand-teal/20 transition active:scale-95 flex items-center justify-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span id="btnSaveMultiScanText">Simpan Transaksi Struk (0 Item)</span>
+          </button>
         </div>
-      </form>
+      </div>
+
+    </div>
+  </div>
     </div>
   </div>
 
@@ -733,7 +813,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">Catatan</label>
-          <input type="text" id="transferCatatan" placeholder="Contoh: Pindah saldo dari BRI ke Cash" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-teal focus:bg-white transition">
+          <input type="text" id="transferCatatan" placeholder="Contoh: Pindah saldo dari BRI ke Tunai" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-teal focus:bg-white transition">
         </div>
 
         <div class="pt-2 flex items-center gap-2">
@@ -912,6 +992,14 @@
       selectedYear: new Date().getFullYear(),
       customStartDate: '',
       customEndDate: '',
+      // Filter & Sortir Mandiri untuk Tabel Riwayat Transaksi
+      tableFilterMode: 'DASHBOARD', // 'DASHBOARD', 'DATE', 'MONTH', 'RANGE', 'ALL'
+      tableFilterDate: new Date().toISOString().split('T')[0],
+      tableFilterMonth: new Date().getMonth(),
+      tableFilterYear: new Date().getFullYear(),
+      tableFilterRangeStart: '',
+      tableFilterRangeEnd: '',
+      tableSortOrder: 'NEWEST', // 'NEWEST', 'OLDEST', 'HIGHEST', 'LOWEST'
       pin: localStorage.getItem('FINTRACK_PIN') || '1234',
       gasUrl: activeGasUrl,
       isAuthenticated: false
@@ -920,6 +1008,7 @@
     let enteredPin = '';
     let currentAddType = 'Pengeluaran';
     let scannedImageBase64 = '';
+    let scannedItems = []; // Array multi-item hasil scan struk
 
     // Chart instances
     let chartArusKasInstance = null;
@@ -938,6 +1027,7 @@
       initYearSelector();
       initMonthSelector();
       renderDynamicFilterControls();
+      renderTableDynamicControls();
       loadInitialData();
 
       // Check PIN session
@@ -1068,6 +1158,79 @@
       if (e) e.value = '';
       renderDynamicFilterControls();
       renderAll();
+    }
+
+    // --- CONTROLS SORTIR & FILTER TABEL RIWAYAT TRANSAKSI ---
+    function onTableFilterModeChange(mode) {
+      appState.tableFilterMode = mode;
+      renderTableDynamicControls();
+      renderTable();
+    }
+
+    function renderTableDynamicControls() {
+      const container = document.getElementById('tableFilterDynamicControls');
+      if (!container) return;
+
+      const mode = appState.tableFilterMode;
+      if (mode === 'DATE') {
+        container.innerHTML = `
+          <input type="date" value="${appState.tableFilterDate}" onchange="onTableFilterDateChange(this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink transition cursor-pointer">
+          <button type="button" onclick="onTableFilterDateChange('${new Date().toISOString().split('T')[0]}')" class="px-2 py-0.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-[11px] transition active:scale-95">Hari Ini</button>
+        `;
+      } else if (mode === 'MONTH') {
+        let mOpts = '';
+        MONTH_NAMES.forEach((m, idx) => {
+          mOpts += `<option value="${idx}" ${idx === appState.tableFilterMonth ? 'selected' : ''}>${m}</option>`;
+        });
+        const currentYear = new Date().getFullYear();
+        let yOpts = '';
+        for (let y = currentYear - 3; y <= currentYear + 2; y++) {
+          yOpts += `<option value="${y}" ${y === appState.tableFilterYear ? 'selected' : ''}>${y}</option>`;
+        }
+        container.innerHTML = `
+          <select onchange="onTableFilterMonthChange(this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-brand-pink transition cursor-pointer">
+            ${mOpts}
+          </select>
+          <select onchange="onTableFilterYearChange(this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-brand-pink transition cursor-pointer">
+            ${yOpts}
+          </select>
+        `;
+      } else if (mode === 'RANGE') {
+        container.innerHTML = `
+          <span class="text-slate-400 font-medium text-[11px]">Dari:</span>
+          <input type="date" value="${appState.tableFilterRangeStart}" onchange="onTableRangeStartChange(this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink transition cursor-pointer">
+          <span class="text-slate-400 font-medium text-[11px]">Sampai:</span>
+          <input type="date" value="${appState.tableFilterRangeEnd}" onchange="onTableRangeEndChange(this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-xs text-slate-800 focus:outline-none focus:border-brand-pink transition cursor-pointer">
+        `;
+      } else {
+        container.innerHTML = '';
+      }
+    }
+
+    function onTableFilterDateChange(val) {
+      if (!val) return;
+      appState.tableFilterDate = val;
+      renderTable();
+    }
+
+    function onTableFilterMonthChange(val) {
+      appState.tableFilterMonth = parseInt(val, 10);
+      renderTable();
+    }
+
+    function onTableFilterYearChange(val) {
+      appState.tableFilterYear = parseInt(val, 10);
+      renderTable();
+    }
+
+    function onTableRangeStartChange(val) {
+      appState.tableFilterRangeStart = val;
+      renderTable();
+    }
+
+    function onTableRangeEndChange(val) {
+      appState.tableFilterRangeEnd = val;
+      renderTable();
     }
 
     function getWeekRangeString() {
@@ -1205,9 +1368,26 @@
         loadDefaultDemoData();
       }
 
-      // Pastikan master dompet default menggunakan BRI, BJB 1, BJB 2, Cash jika belum ada
-      if (!appState.wallets || appState.wallets.length === 0 || appState.wallets.some(w => w.nama.includes('BCA'))) {
+      // Pastikan master dompet default menggunakan BRI, BJB 1, BJB 2, Tunai secara ketat
+      const validWalletNames = ['BRI', 'BJB 1', 'BJB 2', 'Tunai'];
+      if (!appState.wallets || appState.wallets.length === 0 || appState.wallets.some(w => !validWalletNames.includes(w.nama) && w.nama !== 'Cash')) {
         initDefaultWallets();
+      } else {
+        // Migrasi otomatis jika ada akun lama bernama 'Cash'
+        appState.wallets.forEach(w => {
+          if (w.nama === 'Cash') {
+            w.nama = 'Tunai';
+            w.tipe = 'Tunai';
+          }
+        });
+      }
+
+      // Migrasikan catatan transaksi lama jika merujuk ke 'Cash'
+      if (appState.transactions && appState.transactions.length > 0) {
+        appState.transactions.forEach(t => {
+          if (t.dompetAsal === 'Cash') t.dompetAsal = 'Tunai';
+          if (t.dompetTujuan === 'Cash') t.dompetTujuan = 'Tunai';
+        });
       }
 
       if (appState.gasUrl) {
@@ -1223,7 +1403,7 @@
         { id: 'WLT-001', nama: 'BRI', tipe: 'Bank', saldoAwal: 5000000, saldoSaatIni: 5000000, warna: '#00529c' },
         { id: 'WLT-002', nama: 'BJB 1', tipe: 'Bank', saldoAwal: 3000000, saldoSaatIni: 3000000, warna: '#0284c7' },
         { id: 'WLT-003', nama: 'BJB 2', tipe: 'Bank', saldoAwal: 2000000, saldoSaatIni: 2000000, warna: '#00b4d8' },
-        { id: 'WLT-004', nama: 'Cash', tipe: 'Cash', saldoAwal: 750000, saldoSaatIni: 750000, warna: '#10b981' }
+        { id: 'WLT-004', nama: 'Tunai', tipe: 'Tunai', saldoAwal: 750000, saldoSaatIni: 750000, warna: '#10b981' }
       ];
     }
 
@@ -1263,10 +1443,10 @@
       appState.transactions = [
         { id: `TRX-${yyyy}${mm}-001`, tanggal: todayStr, waktu: '08:30', createdAt: `${todayStr}T08:30:00`, jenis: 'Pemasukan', kategori: 'Gaji Pokok', dompetAsal: 'BRI', dompetTujuan: '-', nominal: 10000000, catatan: 'Gaji Bulan Berjalan', linkStruk: '' },
         { id: `TRX-${yyyy}${mm}-002`, tanggal: todayStr, waktu: '10:15', createdAt: `${todayStr}T10:15:00`, jenis: 'Pengeluaran', kategori: 'Tagihan & Utilitas', dompetAsal: 'BJB 1', dompetTujuan: '-', nominal: 1500000, catatan: 'Bayar sewa bulanan', linkStruk: '' },
-        { id: `TRX-${yyyy}${mm}-003`, tanggal: todayStr, waktu: '13:00', createdAt: `${todayStr}T13:00:00`, jenis: 'Pengeluaran', kategori: 'Makanan & Minuman', dompetAsal: 'Cash', dompetTujuan: '-', nominal: 45000, catatan: 'Makan siang ayam geprek', linkStruk: '' },
+        { id: `TRX-${yyyy}${mm}-003`, tanggal: todayStr, waktu: '13:00', createdAt: `${todayStr}T13:00:00`, jenis: 'Pengeluaran', kategori: 'Makanan & Minuman', dompetAsal: 'Tunai', dompetTujuan: '-', nominal: 45000, catatan: 'Makan siang ayam geprek', linkStruk: '' },
         { id: `TRX-${yyyy}${mm}-004`, tanggal: todayStr, waktu: '18:45', createdAt: `${todayStr}T18:45:00`, jenis: 'Pengeluaran', kategori: 'Belanja Kebutuhan', dompetAsal: 'BJB 2', dompetTujuan: '-', nominal: 120000, catatan: 'Belanja sabun & cemilan', linkStruk: '' },
-        { id: `TRX-${yyyy}${mm}-005`, tanggal: yDateStr, waktu: '14:20', createdAt: `${yDateStr}T14:20:00`, jenis: 'Pengeluaran', kategori: 'Transportasi & Bensin', dompetAsal: 'Cash', dompetTujuan: '-', nominal: 50000, catatan: 'Isi bensin motor', linkStruk: '' },
-        { id: `TRX-${yyyy}${mm}-006`, tanggal: twoDateStr, waktu: '11:10', createdAt: `${twoDateStr}T11:10:00`, jenis: 'Pengeluaran', kategori: 'Makanan & Minuman', dompetAsal: 'Cash', dompetTujuan: '-', nominal: 35000, catatan: 'Kopi & sarapan pagi', linkStruk: '' }
+        { id: `TRX-${yyyy}${mm}-005`, tanggal: yDateStr, waktu: '14:20', createdAt: `${yDateStr}T14:20:00`, jenis: 'Pengeluaran', kategori: 'Transportasi & Bensin', dompetAsal: 'Tunai', dompetTujuan: '-', nominal: 50000, catatan: 'Isi bensin motor', linkStruk: '' },
+        { id: `TRX-${yyyy}${mm}-006`, tanggal: twoDateStr, waktu: '11:10', createdAt: `${twoDateStr}T11:10:00`, jenis: 'Pengeluaran', kategori: 'Makanan & Minuman', dompetAsal: 'Tunai', dompetTujuan: '-', nominal: 35000, catatan: 'Kopi & sarapan pagi', linkStruk: '' }
       ];
 
       saveToLocalStorage();
@@ -1287,9 +1467,19 @@
         const response = await fetch(`${appState.gasUrl}?action=getAllData`);
         const json = await response.json();
         if (json.status === 'success' && json.data) {
-          appState.transactions = json.data.transactions || [];
+          appState.transactions = (json.data.transactions || []).map(t => {
+            if (t.dompetAsal === 'Cash') t.dompetAsal = 'Tunai';
+            if (t.dompetTujuan === 'Cash') t.dompetTujuan = 'Tunai';
+            return t;
+          });
           if (json.data.wallets && json.data.wallets.length > 0) {
-            appState.wallets = json.data.wallets;
+            const validNames = ['BRI', 'BJB 1', 'BJB 2', 'Tunai'];
+            appState.wallets = json.data.wallets.map(w => {
+              if (w.nama === 'Cash') {
+                return { ...w, nama: 'Tunai', tipe: 'Tunai' };
+              }
+              return w;
+            }).filter(w => validNames.includes(w.nama));
           }
           if (json.data.categories && json.data.categories.length > 0) {
             appState.categories = json.data.categories;
@@ -1865,7 +2055,7 @@
       return { labels, income, expense, barThickness, title, subtitle };
     }
 
-    // --- RENDER DOMPET (BRI, BJB 1, BJB 2, CASH) ---
+    // --- RENDER DOMPET (BRI, BJB 1, BJB 2, TUNAI) ---
     function renderWallets() {
       const container = document.getElementById('walletCardsContainer');
       container.innerHTML = '';
@@ -1876,7 +2066,7 @@
         card.innerHTML = `
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs" style="background-color: ${w.warna}18; color: ${w.warna}">
-              ${w.nama === 'Cash' ? '💵' : '🏦'}
+              ${w.nama === 'Tunai' || w.nama === 'Cash' ? '💵' : '🏦'}
             </div>
             <div>
               <h4 class="text-xs font-black text-slate-800">${w.nama}</h4>
@@ -2049,7 +2239,45 @@
       const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
       const filterKat = document.getElementById('filterKategoriSelect').value;
 
-      const filtered = getFilteredTransactions().filter(t => {
+      // 1. Tentukan sumber transaksi berdasarkan tableFilterMode
+      let baseList = [];
+      const mode = appState.tableFilterMode;
+
+      if (mode === 'ALL') {
+        baseList = appState.transactions;
+      } else if (mode === 'DATE') {
+        const target = parseLocalDate(appState.tableFilterDate);
+        baseList = appState.transactions.filter(t => {
+          const d = parseLocalDate(t.tanggal);
+          return d.getFullYear() === target.getFullYear() &&
+                 d.getMonth() === target.getMonth() &&
+                 d.getDate() === target.getDate();
+        });
+      } else if (mode === 'MONTH') {
+        baseList = appState.transactions.filter(t => {
+          const d = parseLocalDate(t.tanggal);
+          return d.getMonth() === appState.tableFilterMonth && d.getFullYear() === appState.tableFilterYear;
+        });
+      } else if (mode === 'RANGE') {
+        const start = appState.tableFilterRangeStart ? parseLocalDate(appState.tableFilterRangeStart) : null;
+        const end = appState.tableFilterRangeEnd ? parseLocalDate(appState.tableFilterRangeEnd) : null;
+        if (start) start.setHours(0, 0, 0, 0);
+        if (end) end.setHours(23, 59, 59, 999);
+
+        baseList = appState.transactions.filter(t => {
+          const d = parseLocalDate(t.tanggal);
+          if (start && end) return d >= start && d <= end;
+          if (start) return d >= start;
+          if (end) return d <= end;
+          return true;
+        });
+      } else {
+        // Default: DASHBOARD (mengikuti filter dashboard atas)
+        baseList = getFilteredTransactions();
+      }
+
+      // 2. Filter Pencarian & Kategori
+      let filtered = baseList.filter(t => {
         const matchSearch = !search || 
                             (t.catatan || '').toLowerCase().includes(search) || 
                             (t.kategori || '').toLowerCase().includes(search) || 
@@ -2057,6 +2285,21 @@
                             (t.id || '').toLowerCase().includes(search);
         const matchKat = filterKat === 'ALL' || t.kategori === filterKat;
         return matchSearch && matchKat;
+      });
+
+      // 3. Sortir Data
+      const sortOrder = document.getElementById('tableSortOrder')?.value || appState.tableSortOrder;
+      filtered.sort((a, b) => {
+        if (sortOrder === 'OLDEST') {
+          return parseLocalDate(a.tanggal) - parseLocalDate(b.tanggal);
+        } else if (sortOrder === 'HIGHEST') {
+          return Number(b.nominal) - Number(a.nominal);
+        } else if (sortOrder === 'LOWEST') {
+          return Number(a.nominal) - Number(b.nominal);
+        } else {
+          // NEWEST (Default)
+          return parseLocalDate(b.tanggal) - parseLocalDate(a.tanggal);
+        }
       });
 
       tbody.innerHTML = '';
@@ -2125,35 +2368,35 @@
       const tfFrom = document.getElementById('transferFrom');
       const tfTo = document.getElementById('transferTo');
 
-      addKat.innerHTML = '';
-      scanKat.innerHTML = '';
+      if (addKat) addKat.innerHTML = '';
+      if (scanKat) scanKat.innerHTML = '';
       if (recKat) recKat.innerHTML = '';
-      filterKat.innerHTML = '<option value="ALL">Semua Kategori</option>';
-      addDompet.innerHTML = '';
-      scanDompet.innerHTML = '';
+      if (filterKat) filterKat.innerHTML = '<option value="ALL">Semua Kategori</option>';
+      if (addDompet) addDompet.innerHTML = '';
+      if (scanDompet) scanDompet.innerHTML = '';
       if (recDompet) recDompet.innerHTML = '';
-      tfFrom.innerHTML = '';
-      tfTo.innerHTML = '';
+      if (tfFrom) tfFrom.innerHTML = '';
+      if (tfTo) tfTo.innerHTML = '';
 
       appState.categories.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.nama;
         opt.textContent = c.nama;
-        addKat.appendChild(opt.cloneNode(true));
-        scanKat.appendChild(opt.cloneNode(true));
+        if (addKat) addKat.appendChild(opt.cloneNode(true));
+        if (scanKat) scanKat.appendChild(opt.cloneNode(true));
         if (recKat) recKat.appendChild(opt.cloneNode(true));
-        filterKat.appendChild(opt.cloneNode(true));
+        if (filterKat) filterKat.appendChild(opt.cloneNode(true));
       });
 
       appState.wallets.forEach(w => {
         const opt = document.createElement('option');
         opt.value = w.nama;
         opt.textContent = `${w.nama} (${formatRupiah(w.saldoSaatIni)})`;
-        addDompet.appendChild(opt.cloneNode(true));
-        scanDompet.appendChild(opt.cloneNode(true));
+        if (addDompet) addDompet.appendChild(opt.cloneNode(true));
+        if (scanDompet) scanDompet.appendChild(opt.cloneNode(true));
         if (recDompet) recDompet.appendChild(opt.cloneNode(true));
-        tfFrom.appendChild(opt.cloneNode(true));
-        tfTo.appendChild(opt.cloneNode(true));
+        if (tfFrom) tfFrom.appendChild(opt.cloneNode(true));
+        if (tfTo) tfTo.appendChild(opt.cloneNode(true));
       });
     }
 
@@ -2252,10 +2495,34 @@
       }
     }
 
-    // --- SCAN STRUK & OCR LOGIC ---
+    // --- SCAN STRUK & OCR LOGIC (MULTI-ITEM BATCH VERIFICATION) ---
     function openScanModal() {
       document.getElementById('scanModal').classList.remove('hidden');
-      document.getElementById('scanTanggal').value = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      
+      const tglEl = document.getElementById('scanTanggal');
+      if (tglEl) tglEl.value = todayStr;
+      const wktEl = document.getElementById('scanWaktu');
+      if (wktEl) wktEl.value = timeStr;
+
+      // Reset file & preview
+      const fileInput = document.getElementById('receiptCameraInput');
+      if (fileInput) fileInput.value = '';
+      const placeholder = document.getElementById('scanPlaceholder');
+      if (placeholder) placeholder.classList.remove('hidden');
+      const previewContainer = document.getElementById('scanPreviewContainer');
+      if (previewContainer) previewContainer.classList.add('hidden');
+      const previewImg = document.getElementById('scanPreviewImg');
+      if (previewImg) previewImg.src = '';
+      const statusBox = document.getElementById('ocrStatusBox');
+      if (statusBox) statusBox.classList.add('hidden');
+
+      // Reset scanned items state
+      scannedImageBase64 = '';
+      appState.scannedItems = [];
+      renderScannedItems();
     }
 
     async function handleReceiptFile(input) {
@@ -2265,9 +2532,12 @@
       const reader = new FileReader();
       reader.onload = async (e) => {
         scannedImageBase64 = e.target.result;
-        document.getElementById('scanPreviewImg').src = scannedImageBase64;
-        document.getElementById('scanPlaceholder').classList.add('hidden');
-        document.getElementById('scanPreviewContainer').classList.remove('hidden');
+        const previewImg = document.getElementById('scanPreviewImg');
+        if (previewImg) previewImg.src = scannedImageBase64;
+        const placeholder = document.getElementById('scanPlaceholder');
+        if (placeholder) placeholder.classList.add('hidden');
+        const previewContainer = document.getElementById('scanPreviewContainer');
+        if (previewContainer) previewContainer.classList.remove('hidden');
 
         await runOCR(file);
       };
@@ -2279,33 +2549,92 @@
       const statusText = document.getElementById('ocrStatusText');
       const progressText = document.getElementById('ocrProgressText');
 
-      statusBox.classList.remove('hidden');
-      statusText.textContent = 'Menjalankan OCR Tesseract...';
+      if (statusBox) statusBox.classList.remove('hidden');
+      if (statusText) statusText.textContent = 'Menjalankan OCR Tesseract...';
+      if (progressText) progressText.textContent = 'Menganalisis gambar & mendeteksi baris nama barang...';
 
       try {
         const worker = await Tesseract.createWorker('ind');
         const ret = await worker.recognize(file);
         await worker.terminate();
 
-        const text = ret.data.text;
-        const detectedAmount = extractAmountFromText(text);
-        if (detectedAmount) {
-          document.getElementById('scanNominal').value = formatRupiahNumber(detectedAmount);
-        }
+        const text = ret.data.text || '';
 
+        // 1. Deteksi Tanggal jika ada di struk
         const detectedDate = extractDateFromText(text);
         if (detectedDate) {
-          document.getElementById('scanTanggal').value = detectedDate;
+          const tglEl = document.getElementById('scanTanggal');
+          if (tglEl) tglEl.value = detectedDate;
         }
 
-        statusText.textContent = 'Pemindaian selesai!';
-        progressText.textContent = 'Nominal & tanggal berhasil terdeteksi. Silakan periksa kembali.';
-        setTimeout(() => statusBox.classList.add('hidden'), 3500);
+        // 2. Deteksi Jam jika ada di struk (e.g. 14:35)
+        const detectedTime = extractTimeFromText(text);
+        if (detectedTime) {
+          const wktEl = document.getElementById('scanWaktu');
+          if (wktEl) wktEl.value = detectedTime;
+        }
+
+        // 3. Ekstraksi daftar barang multi-item
+        const items = parseReceiptItemsFromText(text);
+        if (items && items.length > 0) {
+          appState.scannedItems = items;
+          if (statusText) statusText.textContent = 'Pemindaian struk berhasil!';
+          if (progressText) progressText.textContent = `${items.length} barang terdeteksi. Silakan periksa nama & harga sebelum simpan.`;
+        } else {
+          // Fallback jika tidak ada baris yang cocok, ambil total belanja sebagai 1 item
+          const detectedAmount = extractAmountFromText(text);
+          appState.scannedItems = [{
+            id: 'SI-' + Date.now(),
+            nama: 'Belanja Struk',
+            nominal: detectedAmount || 0,
+            kategori: 'Belanja Kebutuhan',
+            selected: true
+          }];
+          if (statusText) statusText.textContent = 'Pemindaian selesai!';
+          if (progressText) progressText.textContent = 'Total belanja terdeteksi. Anda dapat mengoreksi atau menambah item barang.';
+        }
+
+        renderScannedItems();
+        setTimeout(() => {
+          if (statusBox) statusBox.classList.add('hidden');
+        }, 4000);
+
       } catch (err) {
         console.warn('OCR error:', err);
-        statusText.textContent = 'OCR lokal selesai (verifikasi manual)';
-        progressText.textContent = 'Ketik nominal belanja struk Anda pada kolom di bawah.';
+        if (statusText) statusText.textContent = 'OCR lokal selesai (verifikasi manual)';
+        if (progressText) progressText.textContent = 'Silakan ketik atau tambahkan baris barang secara manual.';
+        if (!appState.scannedItems || appState.scannedItems.length === 0) {
+          appState.scannedItems = [{
+            id: 'SI-' + Date.now(),
+            nama: 'Belanja Struk',
+            nominal: 0,
+            kategori: 'Belanja Kebutuhan',
+            selected: true
+          }];
+          renderScannedItems();
+        }
       }
+    }
+
+    function extractTimeFromText(text) {
+      const match = text.match(/\b([01]?\d|2[0-3])[:.]([0-5]\d)(?:[:.][0-5]\d)?\b/);
+      if (match) {
+        const hh = match[1].padStart(2, '0');
+        const mm = match[2].padStart(2, '0');
+        return `${hh}:${mm}`;
+      }
+      return null;
+    }
+
+    function extractDateFromText(text) {
+      const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      if (match) {
+        const dd = match[1].padStart(2, '0');
+        const mm = match[2].padStart(2, '0');
+        const yyyy = match[3];
+        return `${yyyy}-${mm}-${dd}`;
+      }
+      return null;
     }
 
     function extractAmountFromText(text) {
@@ -2333,77 +2662,321 @@
       return null;
     }
 
-    function extractDateFromText(text) {
-      const match = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-      if (match) {
-        const dd = match[1].padStart(2, '0');
-        const mm = match[2].padStart(2, '0');
-        const yyyy = match[3];
-        return `${yyyy}-${mm}-${dd}`;
-      }
-      return null;
+    function cleanItemName(name) {
+      if (!name) return '';
+      return name
+        .replace(/^[0-9]+[\.\-\)\s]+/, '') // strip numbering e.g. 1. 2)
+        .replace(/^\d+x\s+/i, '') // strip 1x 2x
+        .replace(/[*#_=~]/g, '') // remove symbols
+        .replace(/\s+/g, ' ') // normalize spaces
+        .trim();
     }
 
-    async function submitScanTransaction(e) {
-      e.preventDefault();
-      const rawNominal = document.getElementById('scanNominal').value.replace(/[^0-9]/g, '');
-      const nominal = Number(rawNominal);
-      if (!nominal || nominal <= 0) {
-        alert('Masukkan nominal pengeluaran struk yang valid!');
+    function suggestCategoryForName(name) {
+      const lower = (name || '').toLowerCase();
+      if (/makan|minum|kopi|teh|susu|roti|mie|ayam|nasi|soto|bakso|burger|snack|wafer|biskuit|cokelat|aqua|le minerale|indomie|jus|drink|fruit|chiki|pocky|ice cream|restoran|cafe/i.test(lower)) {
+        return 'Makanan & Minuman';
+      }
+      if (/bensin|pertalite|pertamax|solar|spbu|shell|parkir|ojek|grab|gojek|toll|tol|tambal ban|cuci motor|cuci mobil/i.test(lower)) {
+        return 'Transportasi & Bensin';
+      }
+      if (/listrik|pln|pdam|pulsa|token|kuota|wifi|indihome|telkom|air/i.test(lower)) {
+        return 'Tagihan & Utilitas';
+      }
+      if (/bioskop|cinema|tiket|buku|game|mainan|netflix|spotify|hobi/i.test(lower)) {
+        return 'Hiburan & Hobi';
+      }
+      return 'Belanja Kebutuhan';
+    }
+
+    function parseReceiptItemsFromText(text) {
+      const lines = text.split('\n');
+      const items = [];
+      const ignorePattern = /total|subtotal|tunai|cash|kembali|kembalian|debit|kredit|kartu|card|pajak|tax|pb1|ppn|diskon|discount|hemat|kasir|struk|nota|nomor|no\.|telp|jalan|jl\.|npwp|merchant|terima kasih|thank you|selamat datang|bca|bri|mandiri|bjb|bni|gopay|ovo|dana/i;
+
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line || line.length < 3) continue;
+        if (ignorePattern.test(line)) continue;
+
+        // Cek pola baris: Nama Barang diikuti Harga di ujung baris
+        // Contoh: "ULTRA MILK 250ML 7.500" atau "INDOMIE AYAM BAWANG Rp 3.500"
+        const priceMatch = line.match(/(?:Rp\.?\s*)?([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{3,7})\s*$/i);
+        if (priceMatch) {
+          const rawNum = priceMatch[1].replace(/[^0-9]/g, '');
+          const nominal = parseInt(rawNum, 10);
+          const rawName = line.substring(0, priceMatch.index).trim();
+          const cleanedName = cleanItemName(rawName);
+
+          if (nominal >= 500 && nominal <= 50000000 && cleanedName.length >= 2 && !ignorePattern.test(cleanedName)) {
+            items.push({
+              id: 'SI-' + Date.now() + '-' + items.length,
+              nama: cleanedName,
+              nominal: nominal,
+              kategori: suggestCategoryForName(cleanedName),
+              selected: true
+            });
+            continue;
+          }
+        }
+
+        // Alternatif jika format 2 baris (Baris 1: Nama, Baris 2: Qty x Harga)
+        if (i + 1 < lines.length) {
+          const nextLine = lines[i + 1].trim();
+          const nextPriceMatch = nextLine.match(/(?:Rp\.?\s*)?([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{3,7})\s*$/i);
+          if (nextPriceMatch && !ignorePattern.test(line) && !ignorePattern.test(nextLine)) {
+            const rawNum = nextPriceMatch[1].replace(/[^0-9]/g, '');
+            const nominal = parseInt(rawNum, 10);
+            const cleanedName = cleanItemName(line);
+
+            if (nominal >= 500 && nominal <= 50000000 && cleanedName.length >= 2) {
+              items.push({
+                id: 'SI-' + Date.now() + '-' + items.length,
+                nama: cleanedName,
+                nominal: nominal,
+                kategori: suggestCategoryForName(cleanedName),
+                selected: true
+              });
+              i++; // Lewati baris harga yang sudah dipasangkan
+            }
+          }
+        }
+      }
+
+      return items;
+    }
+
+    function renderScannedItems() {
+      const tbody = document.getElementById('scannedItemsTableBody');
+      const badge = document.getElementById('scanItemCountBadge');
+      if (!tbody) return;
+
+      if (!appState.scannedItems || appState.scannedItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center py-8 text-slate-400 text-xs">
+              Belum ada barang di-scan. Ambil atau unggah foto struk di atas, atau klik <b>"+ Tambah"</b>.
+            </td>
+          </tr>
+        `;
+        if (badge) badge.textContent = '0 Item';
+        updateScannedSummary();
         return;
       }
 
-      const tanggal = document.getElementById('scanTanggal').value;
-      const kategori = document.getElementById('scanKategori').value;
-      const dompet = document.getElementById('scanDompet').value;
-      const catatan = document.getElementById('scanCatatan').value.trim() || 'Struk Belanja';
+      if (badge) badge.textContent = `${appState.scannedItems.length} Item`;
 
-      const now = new Date();
-      const currentJam = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      let createdAtStr = now.toISOString();
-      if (tanggal) {
-        const dt = parseLocalDate(tanggal);
-        dt.setHours(now.getHours(), now.getMinutes(), 0);
-        createdAtStr = dt.toISOString();
+      tbody.innerHTML = '';
+      appState.scannedItems.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = item.selected ? 'hover:bg-slate-50 transition' : 'opacity-40 bg-slate-50/50 hover:bg-slate-100 transition';
+        
+        let catSelectHtml = `<select onchange="updateScannedItemKategori(${idx}, this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:outline-none focus:border-brand-pink transition cursor-pointer">`;
+        appState.categories.forEach(c => {
+          catSelectHtml += `<option value="${c.nama}" ${c.nama === item.kategori ? 'selected' : ''}>${c.nama}</option>`;
+        });
+        catSelectHtml += `</select>`;
+
+        const formattedNominal = item.nominal ? formatRupiahNumber(item.nominal) : '0';
+
+        tr.innerHTML = `
+          <td class="py-2 px-2.5 text-center">
+            <input type="checkbox" ${item.selected ? 'checked' : ''} onchange="toggleScannedItemRow(${idx})" class="w-4 h-4 text-brand-teal rounded border-slate-300 focus:ring-brand-teal cursor-pointer">
+          </td>
+          <td class="py-2 px-2.5">
+            <input type="text" value="${item.nama.replace(/"/g, '&quot;')}" oninput="updateScannedItemNama(${idx}, this.value)" placeholder="Nama barang" class="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-lg px-2.5 py-1 text-xs text-slate-800 font-semibold focus:outline-none focus:border-brand-pink transition">
+          </td>
+          <td class="py-2 px-2.5">
+            <input type="text" value="${formattedNominal}" oninput="updateScannedItemNominal(${idx}, this)" placeholder="0" class="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-lg px-2.5 py-1 text-xs text-slate-800 font-bold focus:outline-none focus:border-brand-pink transition text-right">
+          </td>
+          <td class="py-2 px-2.5">
+            ${catSelectHtml}
+          </td>
+          <td class="py-2 px-2 text-center">
+            <button type="button" onclick="deleteScannedItemRow(${idx})" title="Hapus baris barang" class="p-1 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition active:scale-95">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      updateScannedSummary();
+    }
+
+    function toggleScannedItemRow(idx) {
+      if (appState.scannedItems && appState.scannedItems[idx]) {
+        appState.scannedItems[idx].selected = !appState.scannedItems[idx].selected;
+        renderScannedItems();
+      }
+    }
+
+    function toggleSelectAllScannedItems() {
+      if (!appState.scannedItems || appState.scannedItems.length === 0) return;
+      const allSelected = appState.scannedItems.every(i => i.selected);
+      appState.scannedItems.forEach(i => i.selected = !allSelected);
+      const btn = document.getElementById('btnToggleSelectAllScan');
+      if (btn) btn.textContent = allSelected ? 'Pilih Semua' : 'Batal Semua';
+      renderScannedItems();
+    }
+
+    function updateScannedItemNama(idx, val) {
+      if (appState.scannedItems && appState.scannedItems[idx]) {
+        appState.scannedItems[idx].nama = val;
+      }
+    }
+
+    function updateScannedItemNominal(idx, inputEl) {
+      if (appState.scannedItems && appState.scannedItems[idx]) {
+        const clean = inputEl.value.replace(/[^0-9]/g, '');
+        const num = Number(clean) || 0;
+        appState.scannedItems[idx].nominal = num;
+        inputEl.value = formatRupiahNumber(num);
+        updateScannedSummary();
+      }
+    }
+
+    function updateScannedItemKategori(idx, val) {
+      if (appState.scannedItems && appState.scannedItems[idx]) {
+        appState.scannedItems[idx].kategori = val;
+      }
+    }
+
+    function addManualScanItemRow() {
+      if (!appState.scannedItems) appState.scannedItems = [];
+      appState.scannedItems.push({
+        id: 'SI-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        nama: 'Item Belanja Baru',
+        nominal: 0,
+        kategori: 'Belanja Kebutuhan',
+        selected: true
+      });
+      renderScannedItems();
+    }
+
+    function deleteScannedItemRow(idx) {
+      if (appState.scannedItems && appState.scannedItems[idx]) {
+        appState.scannedItems.splice(idx, 1);
+        renderScannedItems();
+      }
+    }
+
+    function updateScannedSummary() {
+      const totalEl = document.getElementById('scanTotalCalculated');
+      const btnText = document.getElementById('btnSaveMultiScanText');
+      const btnSave = document.getElementById('btnSaveMultiScan');
+
+      const selectedItems = (appState.scannedItems || []).filter(i => i.selected);
+      const sum = selectedItems.reduce((acc, i) => acc + (Number(i.nominal) || 0), 0);
+      const count = selectedItems.length;
+
+      if (totalEl) totalEl.textContent = formatRupiah(sum);
+      if (btnText) btnText.textContent = `Simpan Transaksi Struk (${count} Item)`;
+      if (btnSave) {
+        if (count > 0 && sum > 0) {
+          btnSave.disabled = false;
+          btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+          btnSave.disabled = true;
+          btnSave.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+      }
+    }
+
+    async function submitMultiScanTransactions() {
+      const selected = (appState.scannedItems || []).filter(i => i.selected && Number(i.nominal) > 0);
+      if (selected.length === 0) {
+        alert('Pilih minimal satu barang struk dengan nominal valid (> 0)!');
+        return;
       }
 
-      const newTrx = {
-        id: generateClientTrxId(),
-        tanggal: tanggal,
-        waktu: currentJam,
-        createdAt: createdAtStr,
-        jenis: 'Pengeluaran',
-        kategori: kategori,
-        dompetAsal: dompet,
-        dompetTujuan: '-',
-        nominal: nominal,
-        catatan: catatan,
-        linkStruk: scannedImageBase64 ? 'Local Attachment (Drive Queue)' : ''
-      };
+      const tanggalInput = document.getElementById('scanTanggal').value || new Date().toISOString().split('T')[0];
+      const waktuInput = document.getElementById('scanWaktu').value;
+      const dompet = document.getElementById('scanDompet').value || 'Tunai';
 
-      appState.transactions.unshift(newTrx);
+      const now = new Date();
+      const jam = waktuInput || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      // Buat array transaksi baru untuk masing-masing item
+      const newTransactions = [];
+      const batchPayloadItems = [];
+      let totalPengeluaran = 0;
+
+      selected.forEach((item, index) => {
+        const trxId = generateClientTrxId() + '-' + (index + 1);
+        let createdAtStr = now.toISOString();
+        if (tanggalInput && jam) {
+          const [h, m] = jam.split(':');
+          const dt = parseLocalDate(tanggalInput);
+          dt.setHours(parseInt(h, 10), parseInt(m, 10), index);
+          createdAtStr = dt.toISOString();
+        }
+
+        const nominalNum = Number(item.nominal) || 0;
+        totalPengeluaran += nominalNum;
+        const cleanName = (item.nama || '').trim() || 'Item Belanja Struk';
+
+        const trxObj = {
+          id: trxId,
+          tanggal: tanggalInput,
+          waktu: jam,
+          createdAt: createdAtStr,
+          jenis: 'Pengeluaran',
+          kategori: item.kategori || 'Belanja Kebutuhan',
+          dompetAsal: dompet,
+          dompetTujuan: '-',
+          nominal: nominalNum,
+          catatan: cleanName,
+          linkStruk: scannedImageBase64 ? 'Local Attachment (Drive Queue)' : ''
+        };
+
+        newTransactions.push(trxObj);
+        batchPayloadItems.push({
+          id: trxId,
+          tanggal: tanggalInput,
+          waktu: jam,
+          jenis: 'Pengeluaran',
+          kategori: trxObj.kategori,
+          dompetAsal: dompet,
+          nominal: nominalNum,
+          catatan: cleanName,
+          createdAt: createdAtStr
+        });
+      });
+
+      // Update saldo dompet lokal
+      const targetWallet = appState.wallets.find(w => w.nama === dompet);
+      if (targetWallet) {
+        targetWallet.saldoSaatIni = Math.max(0, (targetWallet.saldoSaatIni || 0) - totalPengeluaran);
+      }
+
+      // Masukkan transaksi ke paling atas
+      appState.transactions.unshift(...newTransactions);
       saveToLocalStorage();
       renderAll();
       closeModal('scanModal');
 
+      // Sinkronkan ke Google Apps Script via batch endpoint
       if (appState.gasUrl) {
         try {
           await fetch(appState.gasUrl, {
             method: 'POST',
             body: JSON.stringify({
-              action: 'addTransaction',
+              action: 'addBatchTransactions',
               payload: {
-                ...newTrx,
-                imageBase64: scannedImageBase64
+                tanggal: tanggalInput,
+                dompetAsal: dompet,
+                imageBase64: scannedImageBase64,
+                items: batchPayloadItems
               }
             })
           });
         } catch (err) {
-          console.warn('Gagal sinkron struk ke Apps Script:', err);
+          console.warn('Gagal sinkron batch struk ke Apps Script:', err);
         }
       }
 
-      alert('Transaksi struk berhasil dicatat dan foto telah diproses!');
+      alert(`Berhasil menyimpan ${newTransactions.length} item belanja (${formatRupiah(totalPengeluaran)}) ke rekening ${dompet}!`);
     }
 
     // --- TRANSFER MODAL ---
