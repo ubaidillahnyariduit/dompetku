@@ -2550,14 +2550,109 @@
         const previewContainer = document.getElementById('scanPreviewContainer');
         if (previewContainer) previewContainer.classList.remove('hidden');
 
-        // Prioritas Utama: Jalankan Gemini AI Vision jika API Key tersedia
-        if (appState.geminiApiKey && appState.geminiApiKey.trim() !== '') {
-          await runGeminiVision(file, scannedImageBase64);
-        } else {
-          await runOCR(file);
-        }
+        await processReceiptScan(file, scannedImageBase64);
       };
       reader.readAsDataURL(file);
+    }
+
+    async function processReceiptScan(file, base64) {
+      const statusBox = document.getElementById('ocrStatusBox');
+      const statusText = document.getElementById('ocrStatusText');
+      const progressText = document.getElementById('ocrProgressText');
+
+      if (statusBox) statusBox.classList.remove('hidden');
+      if (statusText) statusText.textContent = '🧠 Menjalankan Gemini AI Vision...';
+      if (progressText) progressText.textContent = 'Menganalisis foto struk, tanggal, jam, dan daftar nama barang...';
+
+      // 1. Prioritas Utama: Jalankan via Backend Google Apps Script (Key tersimpan aman di Spreadsheet)
+      if (appState.gasUrl) {
+        try {
+          if (progressText) progressText.textContent = 'Mengirim gambar struk ke backend Gemini AI Google Apps Script...';
+          const gasRes = await postToGas('scanReceiptGemini', { imageBase64: base64 });
+          if (gasRes && gasRes.status === 'success' && gasRes.data) {
+            applyScanResult(gasRes.data);
+            if (statusText) statusText.textContent = '✨ Pemindaian Gemini AI Selesai!';
+            if (progressText) progressText.textContent = `${appState.scannedItems.length} barang berhasil terdeteksi (${gasRes.data.merchant || 'Struk Belanja'}). Silakan periksa & simpan.`;
+            setTimeout(() => {
+              if (statusBox) statusBox.classList.add('hidden');
+            }, 4000);
+            return;
+          } else if (gasRes && gasRes.status === 'error') {
+            console.warn('Backend Gemini AI mengembalikan status error:', gasRes.message);
+          }
+        } catch (gasErr) {
+          console.warn('Koneksi ke backend Apps Script bermasalah:', gasErr);
+        }
+      }
+
+      // 2. Prioritas Kedua: Client-Side Gemini Vision langsung via browser jika ada API Key di appState
+      if (appState.geminiApiKey && appState.geminiApiKey.trim() !== '') {
+        try {
+          if (progressText) progressText.textContent = 'Menghubungkan langsung ke Google Generative Language API via browser...';
+          await runGeminiVision(file, base64);
+          return;
+        } catch (clientErr) {
+          console.warn('Direct Gemini API gagal:', clientErr);
+        }
+      }
+
+      // 3. Fallback jika AI belum berhasil: Tampilkan status ramah tanpa mengacak data dengan OCR teks rusak
+      if (statusText) statusText.textContent = '⚠️ Pemindaian Otomatis Perlu Konfigurasi';
+      if (progressText) progressText.textContent = 'Web App Google Apps Script belum terhubung atau kuota Gemini habis. Anda dapat menginput barang secara manual pada tabel di bawah.';
+
+      if (!appState.scannedItems || appState.scannedItems.length === 0) {
+        appState.scannedItems = [{
+          id: 'SI-' + Date.now(),
+          nama: 'Item Belanja',
+          nominal: 0,
+          kategori: 'Makanan & Minuman',
+          selected: true
+        }];
+        renderScannedItems();
+      }
+    }
+
+    function applyScanResult(result) {
+      if (!result) return;
+
+      // 1. Tanggal Struk
+      if (result.tanggal && /^\d{4}-\d{2}-\d{2}$/.test(result.tanggal)) {
+        const tglEl = document.getElementById('scanTanggal');
+        if (tglEl) tglEl.value = result.tanggal;
+      }
+
+      // 2. Jam Transaksi
+      if (result.waktu && /^\d{2}:\d{2}/.test(result.waktu)) {
+        const wktEl = document.getElementById('scanWaktu');
+        if (wktEl) wktEl.value = result.waktu.substring(0, 5);
+      }
+
+      // 3. Items Multi-Barang
+      if (result.items && Array.isArray(result.items) && result.items.length > 0) {
+        appState.scannedItems = result.items.map((it, idx) => {
+          const rawNom = (it.nominal !== undefined && it.nominal !== null) ? it.nominal : (it.harga || 0);
+          return {
+            id: 'SI-' + Date.now() + '-' + idx,
+            nama: cleanItemName(it.nama) || 'Barang Struk',
+            nominal: Number(rawNom) || 0,
+            kategori: it.kategori || suggestCategoryForName(it.nama),
+            selected: true
+          };
+        }).filter(it => it.nominal > 0);
+      }
+
+      if (!appState.scannedItems || appState.scannedItems.length === 0) {
+        const totalFallback = Number(result.total) || 0;
+        appState.scannedItems = [{
+          id: 'SI-' + Date.now(),
+          nama: result.merchant ? `Belanja ${result.merchant}` : 'Belanja Struk',
+          nominal: totalFallback,
+          kategori: 'Belanja Kebutuhan',
+          selected: true
+        }];
+      }
+
+      renderScannedItems();
     }
 
     async function runGeminiVision(file, base64) {
@@ -2580,23 +2675,23 @@ Ekstrak seluruh informasi struk dalam format JSON murni TANPA markdown, TANPA ko
 Format JSON WAJIB seperti ini:
 {
   "merchant": "Nama Toko / Minimarket / Restoran",
-  "tanggal": "YYYY-MM-DD", // format YYYY-MM-DD jika tertera, jika tidak ada isi null
-  "waktu": "HH:mm", // format 24 jam misal '14:35', jika tidak ada isi null
+  "tanggal": "YYYY-MM-DD",
+  "waktu": "HH:mm",
   "items": [
     {
       "nama": "Nama barang belanjaan yang rapi (perbaiki singkatan kasir minimarket misal: INDMIE -> Indomie, ROTI TWR -> Roti Tawar)",
-      "nominal": 15000, // angka murni integer positif tanpa titik/koma/simbol Rp
-      "kategori": "Makanan & Minuman" // salah satu dari: 'Makanan & Minuman', 'Transportasi & Bensin', 'Belanja Kebutuhan', 'Tagihan & Utilitas', 'Hiburan & Hobi'
+      "nominal": 15000,
+      "kategori": "Makanan & Minuman"
     }
   ],
-  "total": 45000 // total nominal belanja
+  "total": 45000
 }
 
 Aturan Mutlak:
 1. Pisahkan setiap barang menjadi baris tersendiri di array 'items'.
 2. JANGAN masukkan kata-kata seperti SUBTOTAL, TOTAL, PAJAK, PPN, DISKON, TUNAI, CASH, KEMBALIAN, NOMOR STRUK, KASIR sebagai nama barang.
-3. Kategori barang harus disesuaikan secara logis dengan barangnya.
-4. Nominal wajib angka bulat murni (contoh: 12500, bukan "12.500" atau "Rp 12.500").`;
+3. Kategori barang harus disesuaikan secara logis dengan barangnya ('Makanan & Minuman', 'Belanja Kebutuhan', 'Transportasi & Bensin', 'Kesehatan & Obat', 'Hiburan & Hobi', 'Tagihan & Utilitas', atau 'Lainnya').
+4. Nominal wajib angka bulat murni positif (contoh: 12500, bukan "12.500" atau "Rp 12.500").`;
 
         const requestBody = {
           contents: [
@@ -2644,53 +2739,19 @@ Aturan Mutlak:
           else throw e;
         }
 
-        // 1. Tanggal Struk
-        if (result.tanggal && /^\d{4}-\d{2}-\d{2}$/.test(result.tanggal)) {
-          const tglEl = document.getElementById('scanTanggal');
-          if (tglEl) tglEl.value = result.tanggal;
-        }
-
-        // 2. Jam Transaksi
-        if (result.waktu && /^\d{2}:\d{2}/.test(result.waktu)) {
-          const wktEl = document.getElementById('scanWaktu');
-          if (wktEl) wktEl.value = result.waktu.substring(0, 5);
-        }
-
-        // 3. Items Multi-Barang
-        if (result.items && Array.isArray(result.items) && result.items.length > 0) {
-          appState.scannedItems = result.items.map((it, idx) => ({
-            id: 'SI-' + Date.now() + '-' + idx,
-            nama: cleanItemName(it.nama) || 'Barang Struk',
-            nominal: Number(it.nominal) || 0,
-            kategori: it.kategori || suggestCategoryForName(it.nama),
-            selected: true
-          })).filter(it => it.nominal > 0);
-        }
-
-        if (!appState.scannedItems || appState.scannedItems.length === 0) {
-          const totalFallback = Number(result.total) || 0;
-          appState.scannedItems = [{
-            id: 'SI-' + Date.now(),
-            nama: result.merchant ? `Belanja ${result.merchant}` : 'Belanja Struk',
-            nominal: totalFallback,
-            kategori: 'Belanja Kebutuhan',
-            selected: true
-          }];
-        }
+        applyScanResult(result);
 
         if (statusText) statusText.textContent = '✨ Pemindaian Gemini AI Selesai!';
         if (progressText) progressText.textContent = `${appState.scannedItems.length} barang berhasil terdeteksi (${result.merchant || 'Struk'}). Silakan periksa & sesuaikan.`;
 
-        renderScannedItems();
         setTimeout(() => {
           if (statusBox) statusBox.classList.add('hidden');
         }, 4000);
 
       } catch (err) {
-        console.warn('Gemini AI Vision gagal/offline, beralih ke Tesseract OCR:', err);
-        if (statusText) statusText.textContent = 'Gemini offline / kuota habis. Menjalankan Tesseract OCR...';
-        if (progressText) progressText.textContent = 'Membaca teks lokal via browser...';
-        await runOCR(file);
+        console.warn('Gemini AI Vision gagal:', err);
+        if (statusText) statusText.textContent = '⚠️ Pemindaian Gagal';
+        if (progressText) progressText.textContent = 'Silakan periksa koneksi internet atau masukkan barang secara manual di bawah.';
       }
     }
 
