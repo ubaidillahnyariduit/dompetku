@@ -498,10 +498,10 @@
         <div class="flex items-center gap-2">
           <span class="text-slate-500 font-bold text-[11px] uppercase tracking-wider">Urutkan:</span>
           <select id="tableSortOrder" onchange="renderTable()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-700 focus:outline-none focus:border-brand-pink transition cursor-pointer">
-            <option value="NEWEST">Tanggal Terbaru ⬇️</option>
-            <option value="OLDEST">Tanggal Terlama ⬆️</option>
-            <option value="HIGHEST">Nominal Terbesar ⬇️</option>
-            <option value="LOWEST">Nominal Terkecil ⬆️</option>
+            <option value="NEWEST">Tanggal Terbaru â¬‡ï¸</option>
+            <option value="OLDEST">Tanggal Terlama â¬†ï¸</option>
+            <option value="HIGHEST">Nominal Terbesar â¬‡ï¸</option>
+            <option value="LOWEST">Nominal Terkecil â¬†ï¸</option>
           </select>
         </div>
       </div>
@@ -656,8 +656,20 @@
         </button>
       </div>
 
-      <!-- Area Upload / Kamera & Preview (Compact) -->
-      <div class="flex-shrink-0 space-y-2">
+      <!-- Mode Switcher Tabs: Foto Struk (AI) vs Tempel Teks (Google Lens / Catatan) -->
+      <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl flex-shrink-0">
+        <button type="button" id="tabModeCamera" onclick="switchScanInputMode('camera')" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-white text-slate-800 shadow-sm">
+          <svg class="w-4 h-4 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>ðŸ“· Foto Kamera (AI Vision)</span>
+        </button>
+        <button type="button" id="tabModeText" onclick="switchScanInputMode('text')" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800">
+          <svg class="w-4 h-4 text-brand-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>ðŸ“‹ Tempel Teks (Google Lens / WA)</span>
+        </button>
+      </div>
+
+      <!-- Mode 1: Area Upload / Kamera & Preview (Compact) -->
+      <div id="scanCameraSection" class="flex-shrink-0 space-y-2">
         <div class="border-2 border-dashed border-slate-300 hover:border-brand-teal rounded-2xl p-2.5 sm:p-3 text-center cursor-pointer transition relative bg-slate-50" onclick="document.getElementById('receiptCameraInput').click()">
           <input type="file" id="receiptCameraInput" accept="image/*" capture="environment" onchange="handleReceiptFile(this)" class="hidden">
           
@@ -690,6 +702,28 @@
           <div class="text-xs">
             <p id="ocrStatusText" class="font-bold text-brand-teal text-xs">Memindai teks struk...</p>
             <p id="ocrProgressText" class="text-[10px] text-slate-500">Menganalisis baris barang dan harga</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode 2: Area Tempel Teks Struk / Catatan Belanja (Alternatif Cepat Bebas API Key) -->
+      <div id="scanTextSection" class="hidden flex-shrink-0 space-y-2">
+        <div class="relative bg-slate-50 rounded-2xl border border-slate-300 p-2.5 focus-within:border-brand-pink transition">
+          <textarea id="rawReceiptTextInput" rows="4" placeholder="Tempel teks struk hasil salinan dari Google Lens, pesan WhatsApp, atau catatan belanja di sini...&#10;Contoh:&#10;INDOMARET&#10;17/11/2026 21:30&#10;ROTI TAWAR 15.000&#10;ULTRA MILK 7.000&#10;INDOMIE GOR 3.500" class="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none font-mono leading-relaxed resize-none"></textarea>
+          <div class="flex items-center justify-between pt-1.5 border-t border-slate-200 mt-1">
+            <span class="text-[10px] text-slate-500 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+              Bebas API Key â€¢ Instan & Akurat
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="loadSampleReceiptText()" class="px-2 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold transition">
+                Contoh Teks
+              </button>
+              <button type="button" onclick="parseAndAutoFillFromText()" class="px-3 py-1 rounded-lg bg-gradient-to-r from-brand-pink to-brand-teal text-white text-[11px] font-bold shadow-sm hover:opacity-95 transition flex items-center gap-1 active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                âš¡ Ekstrak & Auto-Fill
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1295,7 +1329,7 @@
         const rangeText = getWeekRangeString();
         container.innerHTML = `
           <div class="flex items-center gap-2 text-slate-200">
-            <span class="text-slate-300">📅 Periode Minggu Ini:</span>
+            <span class="text-slate-300">ðŸ“… Periode Minggu Ini:</span>
             <b class="text-white">${rangeText}</b>
           </div>
           <span class="text-slate-300 font-medium">Bagan di bawah menampilkan arus kas <b>per hari (Senin s/d Minggu)</b></span>
@@ -1303,7 +1337,7 @@
       } else if (appState.filterPeriod === 'bulanan') {
         container.innerHTML = `
           <div class="flex items-center gap-2 text-slate-200">
-            <span class="text-slate-300">📆 Periode Aktif:</span>
+            <span class="text-slate-300">ðŸ“† Periode Aktif:</span>
             <b class="text-white">${MONTH_NAMES[appState.selectedMonth]} ${appState.selectedYear}</b>
           </div>
           <span class="text-slate-300 font-medium">Bagan di bawah menampilkan arus kas <b>per tanggal (Tgl 1 s/d akhir bulan)</b></span>
@@ -1316,7 +1350,7 @@
         }
         container.innerHTML = `
           <div class="flex items-center gap-2 text-slate-200">
-            <span class="text-slate-300">🗓️ Pilih Tahun:</span>
+            <span class="text-slate-300">ðŸ—“ï¸ Pilih Tahun:</span>
             <select onchange="onYearChange(this.value)" class="bg-black/40 border border-white/20 text-xs font-bold text-white rounded-lg px-2.5 py-1 focus:outline-none focus:border-brand-pink cursor-pointer">
               ${yearOpts}
             </select>
@@ -2132,7 +2166,7 @@
         card.innerHTML = `
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs" style="background-color: ${w.warna}18; color: ${w.warna}">
-              ${w.nama === 'Tunai' || w.nama === 'Cash' ? '💵' : '🏦'}
+              ${w.nama === 'Tunai' || w.nama === 'Cash' ? 'ðŸ’µ' : 'ðŸ¦'}
             </div>
             <div>
               <h4 class="text-xs font-black text-slate-800">${w.nama}</h4>
@@ -2170,7 +2204,7 @@
         item.innerHTML = `
           <div>
             <p class="text-xs font-bold text-slate-800">${r.judul}</p>
-            <p class="text-[10px] text-slate-500">Tgl ${r.tanggalBulan} • ${r.dompet} • <span class="${isIncome ? 'text-sky-600' : 'text-brand-pink'} font-semibold">${r.jenis}</span></p>
+            <p class="text-[10px] text-slate-500">Tgl ${r.tanggalBulan} â€¢ ${r.dompet} â€¢ <span class="${isIncome ? 'text-sky-600' : 'text-brand-pink'} font-semibold">${r.jenis}</span></p>
           </div>
           <div class="text-right flex items-center gap-1.5">
             <span class="text-xs font-black ${isIncome ? 'text-sky-600' : 'text-brand-pink'}">${formatRupiah(r.nominal)}</span>
@@ -2368,13 +2402,13 @@
             </span>
           </td>
           <td class="py-2.5 px-3 text-xs font-semibold text-slate-700">
-            ${isTransfer ? `${t.dompetAsal} ➔ ${t.dompetTujuan}` : t.dompetAsal}
+            ${isTransfer ? `${t.dompetAsal} âž” ${t.dompetTujuan}` : t.dompetAsal}
           </td>
           <td class="py-2.5 px-3 text-xs text-slate-600">
             ${t.catatan || '-'}
           </td>
           <td class="py-2.5 px-3 text-right font-black text-xs ${isIncome ? 'text-sky-600' : isTransfer ? 'text-purple-600' : 'text-brand-pink'}">
-            ${isIncome ? '+' : isTransfer ? '⇄ ' : '-'}${formatRupiah(t.nominal)}
+            ${isIncome ? '+' : isTransfer ? 'â‡„ ' : '-'}${formatRupiah(t.nominal)}
           </td>
           <td class="py-2.5 px-3 text-center">
             ${t.linkStruk ? `
@@ -2546,6 +2580,11 @@
       const statusBox = document.getElementById('ocrStatusBox');
       if (statusBox) statusBox.classList.add('hidden');
 
+      // Reset input mode ke kamera & bersihkan kotak teks
+      switchScanInputMode('camera');
+      const textInput = document.getElementById('rawReceiptTextInput');
+      if (textInput) textInput.value = '';
+
       // Reset scanned items state
       scannedImageBase64 = '';
       appState.scannedItems = [];
@@ -2595,7 +2634,7 @@
       const progressText = document.getElementById('ocrProgressText');
 
       if (statusBox) statusBox.classList.remove('hidden');
-      if (statusText) statusText.textContent = '📷 Memproses Foto Struk...';
+      if (statusText) statusText.textContent = 'ðŸ“· Memproses Foto Struk...';
       if (progressText) progressText.textContent = 'Mengompresi ukuran foto agar pemindaian AI instan...';
 
       try {
@@ -2612,7 +2651,7 @@
         await processReceiptScan(file, compressedBase64);
       } catch (err) {
         console.error('Gagal kompresi foto:', err);
-        if (statusText) statusText.textContent = '⚠️ Gagal Memproses Gambar';
+        if (statusText) statusText.textContent = 'âš ï¸ Gagal Memproses Gambar';
         if (progressText) progressText.textContent = err.message || 'Format gambar tidak terbaca.';
       }
     }
@@ -2623,7 +2662,7 @@
       const progressText = document.getElementById('ocrProgressText');
 
       if (statusBox) statusBox.classList.remove('hidden');
-      if (statusText) statusText.textContent = '🧠 Menjalankan Gemini AI Vision...';
+      if (statusText) statusText.textContent = 'ðŸ§  Menjalankan Gemini AI Vision...';
       if (progressText) progressText.textContent = 'Menganalisis foto struk, tanggal, jam, dan daftar nama barang...';
 
       let lastErrorMessage = '';
@@ -2635,7 +2674,7 @@
           const gasRes = await postToGas('scanReceiptGemini', { imageBase64: base64 });
           if (gasRes && gasRes.status === 'success' && gasRes.data) {
             applyScanResult(gasRes.data);
-            if (statusText) statusText.textContent = '✨ Pemindaian Gemini AI Selesai!';
+            if (statusText) statusText.textContent = 'âœ¨ Pemindaian Gemini AI Selesai!';
             if (progressText) progressText.textContent = `${appState.scannedItems.length} barang berhasil terdeteksi (${gasRes.data.merchant || 'Struk Belanja'}). Silakan periksa & simpan.`;
             setTimeout(() => {
               if (statusBox) statusBox.classList.add('hidden');
@@ -2665,7 +2704,7 @@
       }
 
       // 3. Fallback jika AI belum berhasil: Tampilkan keterangan error transparan
-      if (statusText) statusText.textContent = '⚠️ Pemindaian AI Memerlukan Perhatian';
+      if (statusText) statusText.textContent = 'âš ï¸ Pemindaian AI Memerlukan Perhatian';
       if (progressText) {
         progressText.textContent = lastErrorMessage
           ? `${lastErrorMessage}. Silakan periksa koneksi Web App / spreadsheet, atau input barang secara manual.`
@@ -2727,16 +2766,210 @@
       renderScannedItems();
     }
 
+    // --- MODE SWITCHER & SMART RECEIPT TEXT PARSER (ALTERNATIF BEBAS API KEY) ---
+    function switchScanInputMode(mode) {
+      const tabCam = document.getElementById('tabModeCamera');
+      const tabTxt = document.getElementById('tabModeText');
+      const secCam = document.getElementById('scanCameraSection');
+      const secTxt = document.getElementById('scanTextSection');
+
+      if (mode === 'text') {
+        if (tabCam) {
+          tabCam.className = 'flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800';
+        }
+        if (tabTxt) {
+          tabTxt.className = 'flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-white text-slate-800 shadow-sm';
+        }
+        if (secCam) secCam.classList.add('hidden');
+        if (secTxt) secTxt.classList.remove('hidden');
+        const txtArea = document.getElementById('rawReceiptTextInput');
+        if (txtArea) txtArea.focus();
+      } else {
+        if (tabCam) {
+          tabCam.className = 'flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-white text-slate-800 shadow-sm';
+        }
+        if (tabTxt) {
+          tabTxt.className = 'flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800';
+        }
+        if (secCam) secCam.classList.remove('hidden');
+        if (secTxt) secTxt.classList.add('hidden');
+      }
+    }
+
+    function loadSampleReceiptText() {
+      const txt = document.getElementById('rawReceiptTextInput');
+      if (txt) {
+        txt.value = `INDOMARET
+17/11/2026 21:30
+ROTI TAWAR 15.000
+ULTRA MILK 250ML 7.000
+INDOMIE GOR AYAM 3.500
+MINYAK GOR TROPICAL 36.500
+TOTAL 62.000
+TUNAI 100.000
+KEMBALIAN 38.000`;
+      }
+    }
+
+    function parseAndAutoFillFromText() {
+      const txtEl = document.getElementById('rawReceiptTextInput');
+      const rawText = txtEl ? txtEl.value.trim() : '';
+      if (!rawText) {
+        alert('Silakan tempel teks struk terlebih dahulu pada kotak teks.');
+        return;
+      }
+
+      const parsed = parseReceiptText(rawText);
+      if (!parsed || !parsed.items || parsed.items.length === 0) {
+        alert('Tidak ada baris barang dan harga yang dapat diekstrak. Pastikan setiap baris memiliki nama barang dan nominal harga (contoh: "Roti Tawar 15.000").');
+        return;
+      }
+
+      applyScanResult(parsed);
+      alert(`âœ¨ Berhasil mengekstrak ${parsed.items.length} barang belanja dari teks! Silakan periksa tabel verifikasi di bawah.`);
+    }
+
+    function parseReceiptText(rawText) {
+      if (!rawText || !rawText.trim()) return null;
+      const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length === 0) return null;
+
+      let detectedMerchant = '';
+      let detectedDate = '';
+      let detectedTime = '';
+      const detectedItems = [];
+
+      const ignoreKeywords = [
+        'subtotal', 'sub total', 'total bayar', 'total belanja', 'grand total', 'total',
+        'tunai', 'cash', 'kembalian', 'kembali', 'change', 'change due',
+        'ppn', 'pajak', 'tax', 'diskon', 'discount', 'potongan',
+        'kasir', 'teller', 'pos', 'shift', 'struk', 'no.', 'trx', 'nomor',
+        'debit', 'kredit', 'credit', 'qris', 'gopay', 'ovo', 'dana', 'shopeepay', 'linkaja',
+        'terima kasih', 'thank you', 'selamat belanja', 'call center', 'layanan konsumen',
+        'member', 'poin', 'point', 'barcode', 'npwp'
+      ];
+
+      const dateRegex1 = /\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})\b/;
+      const dateRegex2 = /\b(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})\b/;
+      const timeRegex = /\b([01]?\d|2[0-3])[:\.]([0-5]\d)\b/;
+      const brandKeywords = ['indomaret', 'alfamart', 'alfamidi', 'superindo', 'hypermart', 'transmart', 'carrefour', 'yoma', 'lawson', 'famima', 'family mart', 'spbu', 'pertamina', 'shell', 'kopi', 'cafe', 'resto', 'warung', 'bakery', 'apotek', 'kimia farma', 'guardian', 'watsons'];
+
+      for (let i = 0; i < Math.min(5, lines.length); i++) {
+        const lower = lines[i].toLowerCase();
+        if (brandKeywords.some(b => lower.includes(b))) {
+          detectedMerchant = lines[i];
+          break;
+        }
+      }
+
+      function parsePriceNumber(str) {
+        if (!str) return 0;
+        let s = str.replace(/[^0-9]/g, '');
+        let num = Number(s);
+        if (/,00$/.test(str) || /\.00$/.test(str)) {
+          num = Math.floor(num / 100);
+        }
+        return num;
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const lower = line.toLowerCase();
+
+        // 1. Ekstrak Tanggal
+        if (!detectedDate) {
+          const m1 = line.match(dateRegex1);
+          if (m1) {
+            detectedDate = `${m1[3]}-${String(m1[2]).padStart(2, '0')}-${String(m1[1]).padStart(2, '0')}`;
+          } else {
+            const m2 = line.match(dateRegex2);
+            if (m2) {
+              detectedDate = `${m2[1]}-${String(m2[2]).padStart(2, '0')}-${String(m2[3]).padStart(2, '0')}`;
+            }
+          }
+        }
+
+        // 2. Ekstrak Waktu/Jam
+        if (!detectedTime) {
+          const mt = line.match(timeRegex);
+          if (mt) {
+            detectedTime = `${String(mt[1]).padStart(2, '0')}:${mt[2]}`;
+          }
+        }
+
+        // Abaikan baris total / tunai / non-item
+        const isIgnore = ignoreKeywords.some(kw => {
+          const reg = new RegExp(`(^|\\b)${kw}(\\b|\\s|:)`, 'i');
+          return reg.test(lower);
+        });
+        if (isIgnore) continue;
+
+        // Pola A: Baris yang sama memuat Nama Barang dan Nominal di ujung baris
+        // Contoh: "Roti Tawar 15.000", "Indomie Goreng 3500", "Ultra Milk Rp 7.000"
+        const priceAtEndRegex = /^(.*?)(?:[\s\:\t]+)(?:Rp\.?\s*)?([\d\.\,]{3,12})$/i;
+        const matchSameLine = line.match(priceAtEndRegex);
+
+        if (matchSameLine) {
+          let rawName = matchSameLine[1].trim();
+          let rawPrice = matchSameLine[2].trim();
+
+          rawName = rawName.replace(/^[\-\*\â€¢\d+\.\s]+/, '').trim();
+          rawName = rawName.replace(/^\d+\s*(?:x|pcs|buah|bks|kg|gr)?\s+/i, '').trim();
+
+          const cleanPrice = parsePriceNumber(rawPrice);
+          if (rawName.length >= 2 && cleanPrice > 0 && !ignoreKeywords.some(kw => rawName.toLowerCase().startsWith(kw))) {
+            detectedItems.push({
+              nama: cleanItemName(rawName),
+              nominal: cleanPrice,
+              kategori: suggestCategoryForName(rawName)
+            });
+            continue;
+          }
+        }
+
+        // Pola B: Baris nama barang di line i, nominal harga di baris berikutnya (line i+1)
+        if (i + 1 < lines.length) {
+          const nextLine = lines[i + 1].trim();
+          const nextPriceMatch = nextLine.match(/^(?:(?:\d+\s*(?:x|pcs)\s*)?|(?:Rp\.?\s*))([\d\.\,]{3,12})$/i);
+          if (nextPriceMatch) {
+            let rawName = line.replace(/^[\-\*\â€¢\d+\.\s]+/, '').trim();
+            const cleanPrice = parsePriceNumber(nextPriceMatch[1]);
+            if (rawName.length >= 2 && cleanPrice > 0 && !ignoreKeywords.some(kw => rawName.toLowerCase().startsWith(kw))) {
+              detectedItems.push({
+                nama: cleanItemName(rawName),
+                nominal: cleanPrice,
+                kategori: suggestCategoryForName(rawName)
+              });
+              i++;
+              continue;
+            }
+          }
+        }
+      }
+
+      return {
+        merchant: detectedMerchant,
+        tanggal: detectedDate,
+        waktu: detectedTime,
+        items: detectedItems
+      };
+    }
+
     // Auto-Discovery Model Gemini Aktif dari Browser
     async function resolveClientGeminiModel(apiKey) {
       const candidates = [
+        'gemini-3-flash-preview',
+        'gemini-flash-latest',
+        'gemini-3.8-flash',
+        'gemini-flash-lite-latest',
+        'gemini-3.5-flash',
+        'gemini-3.7-flash',
         'gemini-2.0-flash',
         'gemini-2.0-flash-exp',
         'gemini-1.5-flash-latest',
-        'gemini-1.5-flash-002',
         'gemini-1.5-flash',
-        'gemini-2.5-flash',
-        'gemini-1.5-pro'
+        'gemini-2.5-flash-lite',
+        'gemini-pro-latest'
       ];
       try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
@@ -2759,7 +2992,7 @@
       } catch (e) {
         console.warn('Gagal list models di browser:', e);
       }
-      return 'gemini-2.0-flash';
+      return 'gemini-3-flash-preview';
     }
 
     async function runGeminiVision(file, base64, apiKey) {
@@ -2768,7 +3001,7 @@
       const progressText = document.getElementById('ocrProgressText');
 
       if (statusBox) statusBox.classList.remove('hidden');
-      if (statusText) statusText.textContent = '🧠 Menjalankan Gemini AI Vision...';
+      if (statusText) statusText.textContent = 'ðŸ§  Menjalankan Gemini AI Vision...';
       if (progressText) progressText.textContent = 'Menganalisis foto struk, tanggal, jam, dan daftar nama barang...';
 
       const mimeType = 'image/jpeg';
@@ -2826,13 +3059,18 @@ Keluarkan hasil HANYA dalam format JSON valid berikut (tanpa backtick markdown \
       const preferredModel = await resolveClientGeminiModel(apiKey);
       const candidates = [
         preferredModel,
+        'gemini-3-flash-preview',
+        'gemini-flash-latest',
+        'gemini-3.8-flash',
+        'gemini-flash-lite-latest',
+        'gemini-3.5-flash',
+        'gemini-3.7-flash',
         'gemini-2.0-flash',
         'gemini-2.0-flash-exp',
         'gemini-1.5-flash-latest',
-        'gemini-1.5-flash-002',
         'gemini-1.5-flash',
-        'gemini-2.5-flash',
-        'gemini-1.5-pro'
+        'gemini-2.5-flash-lite',
+        'gemini-pro-latest'
       ];
       const modelsToTry = [...new Set(candidates)];
 
@@ -2879,7 +3117,7 @@ Keluarkan hasil HANYA dalam format JSON valid berikut (tanpa backtick markdown \
 
           applyScanResult(result);
 
-          if (statusText) statusText.textContent = '✨ Pemindaian Gemini AI Selesai!';
+          if (statusText) statusText.textContent = 'âœ¨ Pemindaian Gemini AI Selesai!';
           if (progressText) progressText.textContent = `${appState.scannedItems.length} barang berhasil terdeteksi (${result.merchant || 'Struk'}). Silakan periksa & sesuaikan.`;
 
           setTimeout(() => {
@@ -2897,7 +3135,7 @@ Keluarkan hasil HANYA dalam format JSON valid berikut (tanpa backtick markdown \
         }
       }
 
-      throw new Error(`Semua kandidat model Gemini dicoba namun belum berhasil (${lastError})`);
+      throw new Error(`Semua model Gemini dicoba (${lastError}). Saran: Gunakan tab "📋 Tempel Teks" di atas (Bebas API Key) atau buat API Key gratis di aistudio.google.com`);
     }
 
     async function runOCR(file) {
